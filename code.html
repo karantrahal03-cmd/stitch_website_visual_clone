@@ -88,7 +88,7 @@
 </div>
 <!-- END: MainHeader -->
 <!-- BEGIN: MainContent -->
-<main id="home" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-12 space-y-12">
+<main id="home" class="max-w-4xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8 pt-24 sm:pt-28 pb-8 sm:pb-12 space-y-6 sm:space-y-8 md:space-y-12">
 <!-- BEGIN: Today's Result -->
 <section id="today-result" class="bg-white rounded-lg shadow-card overflow-hidden"><div class="bg-arkTeal px-6 py-4">
 <h2 class="text-lg font-semibold text-white text-center">Ark Bazar Result of August 04, 2026 &amp; August 03, 2026</h2>
@@ -97,10 +97,10 @@
 <h3 class="text-sm font-bold">Regional Offline Draw Results</h3>
 <div class="flex flex-1 justify-end items-center text-center"><div class="flex-1 flex justify-center space-x-1"><div class="text-xs font-bold uppercase tracking-wide">Yesterday Result</div></div><div class="w-[25%] flex justify-center"><div class="flex space-x-1"><div class="text-xs font-bold uppercase tracking-wide">Today Result</div></div></div></div>
 </div>
-<div class="bg-arkYellow p-6 flex justify-between items-center"><div class="space-y-1"><h3 class="text-3xl font-black text-gray-900">ARK BAZAR</h3><div class="flex items-center space-x-2 text-xs font-medium text-gray-700"><span class="">at 03:00 PM</span><a class="text-arkGreen font-bold underline" href="#">Record Chart</a></div></div><div class="flex-1 flex items-center"><div class="flex-1 text-center"><div id="main-result" class="text-5xl font-black text-gray-800">113-46</div></div><div class="w-[25%] text-center"><div id="main-today-result" class="text-5xl font-black text-gray-800">-</div></div></div></div>
-<div class="bg-white p-6 border-b border-gray-200">
+<div class="bg-arkYellow p-4 sm:p-6 flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-0"><div class="space-y-1 text-center sm:text-left"><h3 class="text-2xl sm:text-3xl font-black text-gray-900">ARK BAZAR</h3><div class="flex items-center justify-center sm:justify-start space-x-2 text-xs font-medium text-gray-700"><span class="">at 03:00 PM</span><a class="text-arkGreen font-bold underline" href="#">Record Chart</a></div></div><div class="w-full sm:w-auto flex-1 flex items-center justify-between sm:justify-end"><div class="flex-1 text-center"><div id="main-result" class="text-4xl sm:text-5xl font-black text-gray-800">113-46</div></div><div class="w-[25%] text-center"><div id="main-today-result" class="text-4xl sm:text-5xl font-black text-gray-800">-</div></div></div></div>
+<div class="bg-white p-4 sm:p-6 border-b border-gray-200">
 <div class="text-center text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4">YESTERDAY SUMMARY</div>
-<div class="grid grid-cols-4 gap-4 text-center">
+<div class="grid grid-cols-4 gap-2 sm:gap-4 text-center">
 <div>
 <div class="text-[10px] text-gray-500 mb-1">Morning</div>
 <div id="summary-morning" class="text-sm font-bold">-</div>
@@ -135,15 +135,18 @@ Click here for all Regional Offline Draw Results.
           AUTO-UPDATING
         </span>
 </div>
-<div class="bg-arkYellow px-6 py-3 grid grid-cols-6 gap-4 text-sm font-semibold text-gray-800 text-center">
-<div class="col-span-1 text-left">Market Name</div>
-<div class="">Open Time</div>
-<div class="">Close Time</div>
-<div class="">Result</div>
-<div class="">Status</div>
-<div class="">To Get</div>
-</div>
-<div id="live-markets-container" class="border-t border-gray-200 bg-white"></div>
+<div class="overflow-x-auto w-full">
+  <div class="min-w-[600px]">
+    <div class="bg-arkYellow px-6 py-3 grid grid-cols-6 gap-4 text-sm font-semibold text-gray-800 text-center">
+      <div class="col-span-1 text-left">Market Name</div>
+      <div class="">Open Time</div>
+      <div class="">Close Time</div>
+      <div class="">Result</div>
+      <div class="">Status</div>
+      <div class="">To Get</div>
+    </div>
+    <div id="live-markets-container" class="border-t border-gray-200 bg-white"></div>
+  </div>
 </div>
 </section>
 <!-- END: Live Market Board -->
@@ -151,12 +154,14 @@ Click here for all Regional Offline Draw Results.
 <section id="charts" class="bg-white rounded-lg shadow-card overflow-hidden">
 <div class="bg-arkTeal px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
 <h2 class="text-lg font-semibold text-gray-900">Ark Bazar Result Chart</h2>
-<div class="flex items-center space-x-2">
-<div class="relative">
+<div class="flex flex-col sm:flex-row items-stretch sm:items-center w-full sm:w-auto gap-2 sm:gap-4 mt-4 sm:mt-0">
+<div class="relative w-full sm:w-auto">
 <input class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-arkGreen focus:border-arkGreen sm:text-sm rounded-md" placeholder="dd-mm-yyyy" type="date">
 </div>
-<button class="bg-arkGreen text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-800 shadow">Search</button>
-<button class="bg-gray-100 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-200 border border-gray-300">Clear</button>
+<div class="flex space-x-2">
+<button class="flex-1 sm:flex-none bg-arkGreen text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-800 shadow">Search</button>
+<button class="flex-1 sm:flex-none bg-gray-100 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-200 border border-gray-300">Clear</button>
+</div>
 </div>
 </div>
 <div class="p-6">
@@ -169,7 +174,7 @@ Click here for all Regional Offline Draw Results.
 </section>
 <!-- END: Result Chart Section -->
 <!-- BEGIN: Market Analysis -->
-<section class="bg-white rounded-lg shadow-card p-8">
+<section class="bg-white rounded-lg shadow-card p-4 sm:p-6 md:p-8">
 <h2 class="text-2xl font-bold text-gray-900 text-center mb-6">Market Analysis</h2>
 <!-- Tabs -->
 <div class="border-b border-gray-200 mb-6 flex justify-center space-x-8">
@@ -221,9 +226,9 @@ Click here for all Regional Offline Draw Results.
 </section>
 <!-- END: Market Analysis -->
 <!-- BEGIN: About & Contact -->
-<section id="contact" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<section id="contact" class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
 <!-- About Portal -->
-<div class="bg-white rounded-lg shadow-card p-8">
+<div class="bg-white rounded-lg shadow-card p-4 sm:p-6 md:p-8">
 <h2 class="text-2xl font-bold text-arkGreen mb-4">About Portal</h2>
 <p class="text-gray-600 leading-relaxed text-sm">
           Ark Bazar is an informational portal that publishes publicly available number results and chart data. Our mission is to provide accurate, timely, and well-structured historical and daily data for analytical purposes. We pride ourselves on the speed and reliability of our updates.
