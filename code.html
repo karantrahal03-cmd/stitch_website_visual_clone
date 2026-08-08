@@ -1,0 +1,421 @@
+<!DOCTYPE html><html lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Ark Bazar - Results</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            arkGreen: '#006141',
+            arkTeal: '#2CB18A',
+            arkYellow: '#FBC02D',
+            arkLightYellow: '#FDE68A',
+            arkDarkGrey: '#333333',
+            arkLightGrey: '#F5F5F5'
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          backgroundImage: {
+            'abstract-pattern': "url('https://placehold.co/1920x1080/e5e5e5/e5e5e5?text=Abstract+Wavy+Background')"
+          }
+        }
+      }
+    }
+  </script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<style>
+    body {
+      background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuA3lfBHwP_DyMhkawAzDaHuuZcp1rZ83N6Be0kKg4Z2Xrk8qpmH3R9HsHFmGIl7tMgEJwFjnisbRF6MbXMgiXa8qz-EzspJB4e9grEwwmVtKGged-Yt4WhSlRIrW8Q6nzm18OjSpUGE2QmBTQeOi5loC8A8gq7DccfTiuiSgRk06J6_UPdOmIHSKdYd4iuf1VzRhCFQAN2likjo8LBXufkfzJet_ooEkKXWMi1mvreV_bf_ZfzSmr5rIw);
+      background-size: cover;
+      background-attachment: fixed;
+      background-color: rgb(248, 249, 251);
+    }
+.nav-link {
+    border-bottom: 2px solid transparent;
+    transition: border-color 0.3s ease, color 0.3s ease;
+    }
+.nav-link.active {
+    border-bottom: 2px solid white
+    }
+.shadow-card {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)
+    }
+@keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-100%); }
+}
+.animate-marquee {
+    display: inline-block;
+    animation: marquee 25s linear infinite;
+    padding-left: 100%;
+}
+</style>
+</head>
+<body class="text-gray-800 antialiased min-h-screen">
+<!-- BEGIN: MainHeader -->
+<div id="header-wrapper" class="fixed top-0 left-0 w-full z-50 shadow-md flex flex-col">
+  <div class="overflow-hidden bg-[#fbe7e7] border-b border-[#f4c7c3] py-1 whitespace-nowrap w-full">
+    <div class="animate-marquee text-[#d32f2f] text-[9px] sm:text-[10px] font-bold tracking-widest uppercase">
+      THIS WEBSITE IS FOR INFORMATION AND ENTERTAINMENT PURPOSES ONLY, WE DO NOT CONDUCT BETTING OR GAMBLING.
+    </div>
+  </div>
+<header class="bg-arkGreen text-white">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex items-center justify-between h-16">
+<!-- Logo -->
+<div class="flex-shrink-0">
+<a class="text-2xl font-bold tracking-tight" href="#">Ark Bazar</a>
+</div>
+<!-- Navigation -->
+<nav class="hidden md:flex space-x-8" id="main-nav">
+<a class="text-white px-3 py-2 text-sm font-medium nav-link active" href="#home">Home</a>
+<a class="text-gray-200 hover:text-white px-3 py-2 text-sm font-medium nav-link" href="#today-result">Today Result</a>
+<a class="text-gray-200 hover:text-white px-3 py-2 text-sm font-medium nav-link" href="#charts">Charts</a>
+<a class="text-gray-200 hover:text-white px-3 py-2 text-sm font-medium nav-link" href="#contact">Contact</a>
+</nav>
+<!-- Right Side Actions -->
+<div class="flex items-center space-x-4">
+<button class="text-gray-200 hover:text-white focus:outline-none">
+<i class="fa-regular fa-bell text-xl"></i>
+</button>
+</div>
+</div>
+</div>
+</header>
+</div>
+<!-- END: MainHeader -->
+<!-- BEGIN: MainContent -->
+<main id="home" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-12 space-y-12">
+<!-- BEGIN: Today's Result -->
+<section id="today-result" class="bg-white rounded-lg shadow-card overflow-hidden"><div class="bg-arkTeal px-6 py-4">
+<h2 class="text-lg font-semibold text-white text-center">Ark Bazar Result of August 04, 2026 &amp; August 03, 2026</h2>
+</div>
+<div class="bg-arkDarkGrey px-6 py-4 flex justify-between items-center text-white">
+<h3 class="text-sm font-bold">Regional Offline Draw Results</h3>
+<div class="flex flex-1 justify-end items-center text-center"><div class="flex-1 flex justify-center space-x-1"><div class="text-xs font-bold uppercase tracking-wide">Yesterday Result</div></div><div class="w-[25%] flex justify-center"><div class="flex space-x-1"><div class="text-xs font-bold uppercase tracking-wide">Today Result</div></div></div></div>
+</div>
+<div class="bg-arkYellow p-6 flex justify-between items-center"><div class="space-y-1"><h3 class="text-3xl font-black text-gray-900">ARK BAZAR</h3><div class="flex items-center space-x-2 text-xs font-medium text-gray-700"><span class="">at 03:00 PM</span><a class="text-arkGreen font-bold underline" href="#">Record Chart</a></div></div><div class="flex-1 flex items-center"><div class="flex-1 text-center"><div id="main-result" class="text-5xl font-black text-gray-800">113-46</div></div><div class="w-[25%] text-center"><div id="main-today-result" class="text-5xl font-black text-gray-800">-</div></div></div></div>
+<div class="bg-white p-6 border-b border-gray-200">
+<div class="text-center text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4">YESTERDAY SUMMARY</div>
+<div class="grid grid-cols-4 gap-4 text-center">
+<div>
+<div class="text-[10px] text-gray-500 mb-1">Morning</div>
+<div id="summary-morning" class="text-sm font-bold">-</div>
+</div>
+<div>
+<div class="text-[10px] text-gray-500 mb-1">Day</div>
+<div id="summary-day" class="text-sm font-bold">-</div>
+</div>
+<div>
+<div class="text-[10px] text-gray-500 mb-1">Evening</div>
+<div id="summary-evening" class="text-sm font-bold">-</div>
+</div>
+<div>
+<div class="text-[10px] text-gray-500 mb-1">Night</div>
+<div id="summary-night" class="text-sm font-bold">113-46</div>
+</div>
+</div>
+</div>
+<button class="w-full bg-arkDarkGrey text-white py-4 font-bold text-sm hover:bg-gray-800 transition-colors">
+Click here for all Regional Offline Draw Results.
+</button></section>
+<!-- END: Today's Result -->
+<!-- BEGIN: Yesterday's Results -->
+
+<!-- END: Yesterday's Results -->
+<!-- BEGIN: Live Market Board -->
+<section class="bg-white rounded-lg shadow-card overflow-hidden">
+<div class="bg-arkTeal px-6 py-4 flex justify-center items-center">
+<h2 class="text-lg font-semibold text-gray-900 mr-4">Live Market Board</h2>
+<span class="bg-arkYellow text-xs font-bold px-2 py-1 rounded-full flex items-center">
+<span class="w-2 h-2 bg-green-600 rounded-full mr-1 animate-pulse"></span>
+          AUTO-UPDATING
+        </span>
+</div>
+<div class="bg-arkYellow px-6 py-3 grid grid-cols-6 gap-4 text-sm font-semibold text-gray-800 text-center">
+<div class="col-span-1 text-left">Market Name</div>
+<div class="">Open Time</div>
+<div class="">Close Time</div>
+<div class="">Result</div>
+<div class="">Status</div>
+<div class="">To Get</div>
+</div>
+<div id="live-markets-container" class="border-t border-gray-200 bg-white"></div>
+</div>
+</section>
+<!-- END: Live Market Board -->
+<!-- BEGIN: Result Chart Section -->
+<section id="charts" class="bg-white rounded-lg shadow-card overflow-hidden">
+<div class="bg-arkTeal px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+<h2 class="text-lg font-semibold text-gray-900">Ark Bazar Result Chart</h2>
+<div class="flex items-center space-x-2">
+<div class="relative">
+<input class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-arkGreen focus:border-arkGreen sm:text-sm rounded-md" placeholder="dd-mm-yyyy" type="date">
+</div>
+<button class="bg-arkGreen text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-800 shadow">Search</button>
+<button class="bg-gray-100 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-200 border border-gray-300">Clear</button>
+</div>
+</div>
+<div class="p-6">
+<div class="bg-arkYellow rounded-md overflow-hidden flex items-center justify-between px-6 py-3 mb-2">
+<div class="font-semibold text-gray-800 flex-1 text-center border-r border-yellow-500">DATE</div>
+<div class="font-semibold text-gray-800 flex-1 text-center">ARK BAZAR</div>
+</div>
+<div id="chart-history-container" class="space-y-2"></div>
+</div>
+</section>
+<!-- END: Result Chart Section -->
+<!-- BEGIN: Market Analysis -->
+<section class="bg-white rounded-lg shadow-card p-8">
+<h2 class="text-2xl font-bold text-gray-900 text-center mb-6">Market Analysis</h2>
+<!-- Tabs -->
+<div class="border-b border-gray-200 mb-6 flex justify-center space-x-8">
+<button id="tab-weekly" class="text-arkGreen font-semibold py-2 border-b-2 border-arkGreen">Weekly Grid</button>
+<button id="tab-hot" class="text-gray-500 hover:text-gray-700 py-2 border-b-2 border-transparent">Hot Numbers</button>
+</div>
+<!-- Weekly Grid -->
+<div id="content-weekly" class="flex justify-between space-x-2 overflow-x-auto pb-2">
+<!-- Monday -->
+<div class="bg-gray-50 border border-gray-200 rounded-md p-4 text-center min-w-[80px] flex-1">
+<div class="text-xs font-semibold text-gray-600 mb-2">MON</div>
+<div id="weekly-mon" class="text-arkGreen font-bold">---</div>
+</div>
+<!-- Tuesday -->
+<div class="bg-gray-50 border border-gray-200 rounded-md p-4 text-center min-w-[80px] flex-1">
+<div class="text-xs font-semibold text-gray-600 mb-2">TUE</div>
+<div id="weekly-tue" class="text-arkGreen font-bold">---</div>
+</div>
+<!-- Wednesday -->
+<div class="bg-gray-50 border border-gray-200 rounded-md p-4 text-center min-w-[80px] flex-1">
+<div class="text-xs font-semibold text-gray-600 mb-2">WED</div>
+<div id="weekly-wed" class="text-arkGreen font-bold">---</div>
+</div>
+<!-- Thursday -->
+<div class="bg-gray-50 border border-gray-200 rounded-md p-4 text-center min-w-[80px] flex-1">
+<div class="text-xs font-semibold text-gray-600 mb-2">THU</div>
+<div id="weekly-thu" class="text-arkGreen font-bold">---</div>
+</div>
+<!-- Friday -->
+<div class="bg-gray-50 border border-gray-200 rounded-md p-4 text-center min-w-[80px] flex-1">
+<div class="text-xs font-semibold text-gray-600 mb-2">FRI</div>
+<div id="weekly-fri" class="text-arkGreen font-bold">---</div>
+</div>
+<!-- Saturday -->
+<div class="bg-gray-50 border border-gray-200 rounded-md p-4 text-center min-w-[80px] flex-1">
+<div class="text-xs font-semibold text-gray-600 mb-2">SAT</div>
+<div id="weekly-sat" class="text-arkGreen font-bold">---</div>
+</div>
+<!-- Sunday -->
+<div class="bg-gray-50 border border-gray-200 rounded-md p-4 text-center min-w-[80px] flex-1">
+<div class="text-xs font-semibold text-red-600 mb-2">SUN</div>
+<div id="weekly-sun" class="text-arkGreen font-bold">---</div>
+</div>
+</div>
+<!-- Hot Numbers Content -->
+<div id="content-hot" class="hidden p-6 text-center bg-gray-50 border border-gray-200 rounded-md">
+  <div id="hot-numbers-container" class="flex justify-center space-x-2 mt-4 flex-wrap gap-y-2"></div>
+</div>
+</section>
+<!-- END: Market Analysis -->
+<!-- BEGIN: About & Contact -->
+<section id="contact" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<!-- About Portal -->
+<div class="bg-white rounded-lg shadow-card p-8">
+<h2 class="text-2xl font-bold text-arkGreen mb-4">About Portal</h2>
+<p class="text-gray-600 leading-relaxed text-sm">
+          Ark Bazar is an informational portal that publishes publicly available number results and chart data. Our mission is to provide accurate, timely, and well-structured historical and daily data for analytical purposes. We pride ourselves on the speed and reliability of our updates.
+        </p>
+</div>
+<!-- Contact Information -->
+<div class="space-y-4">
+<h2 class="text-2xl font-bold text-arkGreen mb-4 hidden md:block">Contact Information</h2>
+<!-- Email Card -->
+<div class="bg-white rounded-lg shadow-card p-6 flex items-center space-x-4">
+<div class="bg-arkTeal text-white w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0">
+<i class="fa-regular fa-envelope text-xl"></i>
+</div>
+<div>
+<div class="text-xs font-semibold text-gray-500 tracking-wider uppercase mb-1">Email Us</div>
+<a class="text-gray-900 font-bold hover:text-arkGreen" href="mailto:contact@arkbazar.in">contact@arkbazar.in</a>
+</div>
+</div>
+<!-- Instagram Card -->
+<div class="bg-white rounded-lg shadow-card p-6 flex items-center space-x-4">
+<div class="bg-arkYellow text-gray-900 w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0">
+<i class="fa-brands fa-instagram text-xl"></i>
+</div>
+<div>
+<div class="text-xs font-semibold text-gray-500 tracking-wider uppercase mb-1">Follow Us</div>
+<a class="text-gray-900 font-bold hover:text-arkYellow" href="#">@arkbazar on Instagram</a>
+</div>
+</div>
+</div>
+</section>
+<!-- END: About & Contact -->
+</main>
+<!-- END: MainContent -->
+<!-- Feedback Button -->
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const sections = document.querySelectorAll("main[id], section[id]");
+    const navLinks = document.querySelectorAll(".nav-link");
+    const header = document.getElementById("header-wrapper") || document.querySelector("header");
+    
+    function onScroll() {
+      const scrollPos = window.scrollY;
+      const headerHeight = header.offsetHeight;
+      let currentSectionId = "home";
+
+      sections.forEach((section) => {
+        const sectionTop = section.offsetTop - headerHeight - 100;
+
+        if (scrollPos >= sectionTop) {
+          currentSectionId = section.getAttribute("id");
+        }
+      });
+
+      if ((window.innerHeight + Math.round(window.scrollY)) >= document.body.offsetHeight - 20) {
+         currentSectionId = "contact";
+      }
+
+      navLinks.forEach((link) => {
+        link.classList.remove("active", "text-white");
+        link.classList.add("text-gray-200");
+        
+        if (link.getAttribute("href") === `#${currentSectionId}`) {
+          link.classList.add("active", "text-white");
+          link.classList.remove("text-gray-200");
+        }
+      });
+    }
+
+    navLinks.forEach(link => {
+      link.addEventListener("click", function(e) {
+        e.preventDefault();
+        const targetId = this.getAttribute("href").substring(1);
+        const targetElement = document.getElementById(targetId);
+        
+        if (targetElement) {
+          window.scrollTo({
+            top: targetElement.offsetTop - header.offsetHeight - 20,
+            behavior: "smooth"
+          });
+        }
+      });
+    });
+
+    window.addEventListener("scroll", onScroll);
+    onScroll();
+
+    // Market Analysis Tabs
+    const tabWeekly = document.getElementById('tab-weekly');
+    const tabHot = document.getElementById('tab-hot');
+    const contentWeekly = document.getElementById('content-weekly');
+    const contentHot = document.getElementById('content-hot');
+
+    if (tabWeekly && tabHot) {
+      tabWeekly.addEventListener('click', () => {
+        tabWeekly.classList.add('text-arkGreen', 'border-arkGreen');
+        tabWeekly.classList.remove('text-gray-500', 'border-transparent');
+        tabHot.classList.remove('text-arkGreen', 'border-arkGreen');
+        tabHot.classList.add('text-gray-500', 'border-transparent');
+        
+        contentWeekly.classList.remove('hidden');
+        contentWeekly.classList.add('flex');
+        contentHot.classList.add('hidden');
+      });
+
+      tabHot.addEventListener('click', () => {
+        tabHot.classList.add('text-arkGreen', 'border-arkGreen');
+        tabHot.classList.remove('text-gray-500', 'border-transparent');
+        tabWeekly.classList.remove('text-arkGreen', 'border-arkGreen');
+        tabWeekly.classList.add('text-gray-500', 'border-transparent');
+        
+        contentHot.classList.remove('hidden');
+        contentWeekly.classList.add('hidden');
+        contentWeekly.classList.remove('flex');
+      });
+    }
+  });
+</script>
+
+
+
+
+
+
+
+
+
+<footer class="bg-arkDarkGrey text-white py-8 mt-12 w-full">
+  <div class="max-w-4xl mx-auto px-4 text-center text-sm">
+    <p>&copy; 2026 Ark Bazar. All rights reserved.</p>
+    <div class="mt-2">
+      <a href="/legal.html" class="text-arkYellow hover:underline">Legal Information & Privacy Policy</a>
+    </div>
+  </div>
+</footer>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+  socket.on('site_data_updated', (data) => {
+    document.getElementById('main-result').innerText = data.mainResult;
+    document.getElementById('main-today-result').innerText = data.mainTodayResult;
+    document.getElementById('summary-morning').innerText = data.summaryMorning;
+    document.getElementById('summary-day').innerText = data.summaryDay;
+    document.getElementById('summary-evening').innerText = data.summaryEvening;
+    const liveContainer = document.getElementById('live-markets-container');
+    liveContainer.innerHTML = '';
+    data.liveMarkets.forEach((m) => {
+      liveContainer.innerHTML += `
+        <div class="px-6 py-4 grid grid-cols-6 gap-4 items-center text-sm text-center border-b border-gray-100 last:border-0">
+          <div class="col-span-1 font-bold text-left flex items-center space-x-2">
+            <span>${m.name}</span>
+            <i class="fa-solid fa-star text-arkYellow text-xs"></i>
+          </div>
+          <div>${m.openTime}</div>
+          <div>${m.closeTime}</div>
+          <div class="font-bold text-arkGreen text-lg">${m.result}</div>
+          <div>
+            <span class="bg-gray-200 text-gray-600 text-xs px-2 py-1 rounded border border-gray-300">${m.status}</span>
+          </div>
+          <div>
+            <button class="text-arkTeal hover:text-green-700"><i class="fa-regular fa-message text-lg"></i></button>
+          </div>
+        </div>
+      `;
+    });
+    
+    document.getElementById('weekly-mon').innerText = data.weekly.mon;
+    document.getElementById('weekly-tue').innerText = data.weekly.tue;
+    document.getElementById('weekly-wed').innerText = data.weekly.wed;
+    document.getElementById('weekly-thu').innerText = data.weekly.thu;
+    document.getElementById('weekly-fri').innerText = data.weekly.fri;
+    document.getElementById('weekly-sat').innerText = data.weekly.sat;
+    document.getElementById('weekly-sun').innerText = data.weekly.sun;
+    
+    const hotContainer = document.getElementById('hot-numbers-container');
+    hotContainer.innerHTML = '';
+    if(data.hotNumbers.length === 0) {
+       hotContainer.innerHTML = '<div class="text-gray-500 text-sm italic w-full">No hot numbers available for the current selection.</div>';
+    } else {
+       data.hotNumbers.forEach((num) => {
+         hotContainer.innerHTML += `<span class="w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold text-sm">${num}</span>`;
+       });
+    }
+    
+    const historyContainer = document.getElementById('chart-history-container');
+    historyContainer.innerHTML = '';
+    data.chartHistory.forEach((item) => {
+      historyContainer.innerHTML += `<div class="bg-gray-50 border rounded-md flex items-center justify-between px-6 py-3">
+        <div class="flex-1 text-center font-semibold text-gray-700">${item.date}</div>
+        <div class="flex-1 text-center font-bold text-arkGreen text-lg">${item.result}</div>
+      </div>`;
+    });
+  });
+</script>
+</body></html>
