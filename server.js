@@ -19,7 +19,27 @@ let appState = {
   ],
   weekly: { mon: "---", tue: "---", wed: "---", thu: "---", fri: "---", sat: "---", sun: "---" },
   hotNumbers: ["--", "--", "--"],
-  chartHistory: [{ id: "1", date: "04-08-2026", result: "113-46" }],
+  chartHistory: (function() {
+    const startDate = new Date(2021, 0, 9); // Jan 9, 2021
+    const endDate = new Date(); // Present date
+    let dates = [];
+    let current = new Date(startDate);
+    while (current <= endDate) {
+      const day = String(current.getDate()).padStart(2, '0');
+      const month = String(current.getMonth() + 1).padStart(2, '0');
+      const year = current.getFullYear();
+      dates.push(`${day}-${month}-${year}`);
+      current.setDate(current.getDate() + 1);
+    }
+    // Newest to oldest
+    dates.reverse();
+    // Random selection of numbers 1-100
+    return dates.map((dateStr, index) => ({
+      id: String(index + 1),
+      date: dateStr,
+      result: String(Math.floor(Math.random() * 100) + 1)
+    }));
+  })(),
   lastKnownDate: ""
 };
 
@@ -52,6 +72,20 @@ app.get('/dash-xyz987', (req, res) => {
   }
   res.sendFile(path.join(__dirname, 'admin.html'));
 });
+
+function calculateHotNumbers() {
+  const counts = {};
+  appState.chartHistory.forEach(item => {
+    const res = String(item.result).trim();
+    if (res && res !== "-" && res !== "--") {
+      counts[res] = (counts[res] || 0) + 1;
+    }
+  });
+  const sorted = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
+  appState.hotNumbers = sorted.slice(0, 5);
+}
+
+calculateHotNumbers();
 
 // WebSocket logic
 io.on('connection', (socket) => {
@@ -100,6 +134,7 @@ io.on('connection', (socket) => {
       if (m) m[payload.field] = payload.value;
     }
 
+    calculateHotNumbers();
     io.emit('site_data_updated', appState);
   });
 });

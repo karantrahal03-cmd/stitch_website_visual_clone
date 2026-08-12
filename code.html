@@ -156,11 +156,11 @@ Click here for all Regional Offline Draw Results.
 <h2 class="text-lg font-semibold text-gray-900">Ark Bazar Result Chart</h2>
 <div class="flex flex-col sm:flex-row items-stretch sm:items-center w-full sm:w-auto gap-2 sm:gap-4 mt-4 sm:mt-0">
 <div class="relative w-full sm:w-auto">
-<input class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-arkGreen focus:border-arkGreen sm:text-sm rounded-md" placeholder="dd-mm-yyyy" type="date">
+<input id="chart-date-input" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-arkGreen focus:border-arkGreen sm:text-sm rounded-md" placeholder="dd-mm-yyyy" type="date">
 </div>
 <div class="flex space-x-2">
-<button class="flex-1 sm:flex-none bg-arkGreen text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-800 shadow">Search</button>
-<button class="flex-1 sm:flex-none bg-gray-100 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-200 border border-gray-300">Clear</button>
+<button id="chart-search-btn" class="flex-1 sm:flex-none bg-arkGreen text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-800 shadow">Search</button>
+<button id="chart-clear-btn" class="flex-1 sm:flex-none bg-gray-100 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-200 border border-gray-300">Clear</button>
 </div>
 </div>
 </div>
@@ -367,6 +367,41 @@ Click here for all Regional Offline Draw Results.
 <script src="/socket.io/socket.io.js"></script>
 <script>
   const socket = io();
+  window.fullChartHistory = [];
+  
+  function renderChartHistory(items) {
+    const historyContainer = document.getElementById('chart-history-container');
+    historyContainer.innerHTML = '';
+    if (items.length === 0) {
+      historyContainer.innerHTML = '<div class="text-center text-gray-500 py-4">No results found for this date.</div>';
+      return;
+    }
+    items.forEach((item) => {
+      historyContainer.innerHTML += `<div class="bg-gray-50 border rounded-md flex items-center justify-between px-6 py-3">
+        <div class="flex-1 text-center font-semibold text-gray-700">${item.date}</div>
+        <div class="flex-1 text-center font-bold text-arkGreen text-lg">${item.result}</div>
+      </div>`;
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById('chart-search-btn').addEventListener('click', () => {
+      const dateInput = document.getElementById('chart-date-input').value;
+      if (!dateInput) return;
+      const parts = dateInput.split('-');
+      if (parts.length === 3) {
+        const formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+        const filtered = window.fullChartHistory.filter(item => item.date === formattedDate);
+        renderChartHistory(filtered);
+      }
+    });
+
+    document.getElementById('chart-clear-btn').addEventListener('click', () => {
+      document.getElementById('chart-date-input').value = '';
+      renderChartHistory(window.fullChartHistory.slice(0, 3));
+    });
+  });
+
   socket.on('site_data_updated', (data) => {
     document.getElementById('main-result').innerText = data.mainResult;
     document.getElementById('main-today-result').innerText = data.mainTodayResult;
@@ -413,14 +448,10 @@ Click here for all Regional Offline Draw Results.
        });
     }
     
-    const historyContainer = document.getElementById('chart-history-container');
-    historyContainer.innerHTML = '';
-    data.chartHistory.forEach((item) => {
-      historyContainer.innerHTML += `<div class="bg-gray-50 border rounded-md flex items-center justify-between px-6 py-3">
-        <div class="flex-1 text-center font-semibold text-gray-700">${item.date}</div>
-        <div class="flex-1 text-center font-bold text-arkGreen text-lg">${item.result}</div>
-      </div>`;
-    });
+    window.fullChartHistory = data.chartHistory;
+    if (!document.getElementById('chart-date-input').value) {
+      renderChartHistory(window.fullChartHistory.slice(0, 3));
+    }
   });
 </script>
 </body></html>
