@@ -2,18 +2,22 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
+const DATA_FILE = path.join(__dirname, 'data.json');
+
 let appState = {
   mainResult: "113-46",
+  mainResultTime: "03:00 PM",
   mainTodayResult: "-",
   summaryMorning: "-",
-  summaryDay: "-",
+  summaryDay: "113-46",
   summaryEvening: "-",
-  summaryNight: "113-46",
+  summaryNight: "-",
   liveMarkets: [
     { id: "m1", name: "Ark Bazar", openTime: "09:00 AM", closeTime: "07:00 PM", result: "-", status: "CLOSED" }
   ],
@@ -31,9 +35,7 @@ let appState = {
       dates.push(`${day}-${month}-${year}`);
       current.setDate(current.getDate() + 1);
     }
-    // Newest to oldest
     dates.reverse();
-    // Random selection of numbers 1-100
     return dates.map((dateStr, index) => ({
       id: String(index + 1),
       date: dateStr,
@@ -43,34 +45,92 @@ let appState = {
   lastKnownDate: ""
 };
 
+if (fs.existsSync(DATA_FILE)) {
+  try {
+    const rawData = fs.readFileSync(DATA_FILE, 'utf8');
+    const parsed = JSON.parse(rawData);
+    appState = { ...appState, ...parsed };
+  } catch (err) {
+    console.error("Error reading data.json:", err);
+  }
+}
+
+// Function to link Yesterday Summary with mainResult
+function updateYesterdaySummaryFromMainResult() {
+  appState.summaryMorning = "-";
+  appState.summaryDay = "-";
+  appState.summaryEvening = "-";
+  appState.summaryNight = "-";
+  if (appState.mainResult && appState.mainResult !== "-") {
+    const t = parseTimes(appState.mainResultTime)[0];
+    if (t !== undefined && t !== -1) {
+      if (t < 12 * 60) appState.summaryMorning = appState.mainResult;
+      else if (t < 17 * 60) appState.summaryDay = appState.mainResult;
+      else if (t < 20 * 60) appState.summaryEvening = appState.mainResult;
+      else appState.summaryNight = appState.mainResult;
+    }
+  }
+}
+
+// Ensure summaries are perfectly in sync with mainResult on startup
+
+function saveData() {
+  fs.writeFile(DATA_FILE, JSON.stringify(appState, null, 2), (err) => {
+    if (err) console.error("Error saving to data.json:", err);
+  });
+}
+
+const parseTimes = (timeStr) => {
+  if(!timeStr) return [];
+  return timeStr.split(',').map(t => {
+    t = t.trim();
+    if(!t.includes(':')) return -1;
+    const [time, modifier] = t.split(' ');
+    if(!modifier) return -1;
+    let [h, m] = time.split(':');
+    h = parseInt(h);
+    m = parseInt(m);
+    if (h === 12 && modifier.toUpperCase() === 'AM') h = 0;
+    if (h !== 12 && modifier.toUpperCase() === 'PM') h += 12;
+    return h * 60 + m;
+  }).filter(v => v !== -1);
+};
+
+
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Serve static assets from root directory
-app.use(express.static(__dirname));
+app.use(express.static(__dirname, { index: false }));
 
-// Root route - explicitly serve code.html
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'code.html'), (err) => {
+  fs.readFile(path.join(__dirname, 'code.html'), 'utf8', (err, html) => {
     if (err) {
       console.error("Error sending code.html:", err);
-      res.status(500).send("Error loading page");
+      return res.status(500).send("Error loading page");
     }
+    const injected = html.replace('</head>', `<script>window.__INITIAL_STATE__ = ${JSON.stringify(appState)};</script></head>`);
+    res.send(injected);
   });
 });
 
-// Legal page route
 app.get('/legal', (req, res) => {
   res.sendFile(path.join(__dirname, 'legal.html'));
 });
 
-// Secret Admin route
 app.get('/dash-xyz987', (req, res) => {
   const { key } = req.query;
   if (key !== 'super_secret_token_2026') {
     return res.status(403).send('403 Forbidden');
   }
-  res.sendFile(path.join(__dirname, 'admin.html'));
+  fs.readFile(path.join(__dirname, 'admin.html'), 'utf8', (err, html) => {
+    if (err) {
+      console.error("Error sending admin.html:", err);
+      return res.status(500).send("Error loading page");
+    }
+    const injected = html.replace('</head>', `<script>window.__INITIAL_STATE__ = ${JSON.stringify(appState)};</script></head>`);
+    res.send(injected);
+  });
 });
 
 function calculateHotNumbers() {
@@ -87,7 +147,6 @@ function calculateHotNumbers() {
 
 calculateHotNumbers();
 
-// WebSocket logic
 io.on('connection', (socket) => {
   socket.emit('site_data_updated', appState);
 
@@ -135,11 +194,12 @@ io.on('connection', (socket) => {
     }
 
     calculateHotNumbers();
+    saveData();
     io.emit('site_data_updated', appState);
   });
+
 });
 
-// Midnight Reset & Live Status
 function updateLiveStatus() {
   try {
     const now = new Date();
@@ -162,32 +222,15 @@ function updateLiveStatus() {
     if (!appState.lastKnownDate) {
       appState.lastKnownDate = currentDateStr;
     } else if (appState.lastKnownDate !== currentDateStr) {
-      appState.mainResult = "-";
+
+      appState.mainResult = appState.mainTodayResult !== "-" ? appState.mainTodayResult : appState.mainResult;
       appState.mainTodayResult = "-";
-      appState.summaryMorning = "-";
-      appState.summaryDay = "-";
-      appState.summaryEvening = "-";
-      appState.summaryNight = "-";
+      
       appState.liveMarkets.forEach(m => m.result = "-");
       appState.lastKnownDate = currentDateStr;
       stateChanged = true;
     }
 
-    const parseTimes = (timeStr) => {
-      if(!timeStr) return [];
-      return timeStr.split(',').map(t => {
-        t = t.trim();
-        if(!t.includes(':')) return -1;
-        const [time, modifier] = t.split(' ');
-        if(!modifier) return -1;
-        let [h, m] = time.split(':');
-        h = parseInt(h);
-        m = parseInt(m);
-        if (h === 12 && modifier.toUpperCase() === 'AM') h = 0;
-        if (h !== 12 && modifier.toUpperCase() === 'PM') h += 12;
-        return h * 60 + m;
-      }).filter(v => v !== -1);
-    };
 
     appState.liveMarkets.forEach(market => {
       const openTimes = parseTimes(market.openTime);
@@ -217,6 +260,7 @@ function updateLiveStatus() {
     });
 
     if (stateChanged) {
+      saveData();
       io.emit('site_data_updated', appState);
     }
   } catch (e) {
