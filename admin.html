@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en" style=""><head>
+<!DOCTYPE html><html lang="en" style="scroll-behavior: smooth;"><head>
 <meta charset="utf-8">
 <meta content="width=device-width, initial-scale=1.0" name="viewport">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -36,6 +36,20 @@
       background-attachment: fixed;
       background-color: rgb(248, 249, 251);
     }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in {
+      animation: fadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+    .hover-lift {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .hover-lift:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -5px rgba(0, 0, 0, 0.1);
+    }
 .nav-link {
     border-bottom: 2px solid transparent;
     transition: border-color 0.3s ease, color 0.3s ease;
@@ -56,6 +70,39 @@
     padding-left: 100%;
 }
 </style>
+<!-- Supabase Auth -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script>
+  // Check auth immediately
+  async function requireAuth() {
+    if (localStorage.getItem('admin_auth') === 'true') return;
+    try {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session) {
+        window.location.href = 'login.html';
+      }
+    } catch(e) {
+      window.location.href = 'login.html';
+    }
+  }
+  requireAuth();
+
+  // Listen to auth changes
+  supabaseClient.auth.onAuthStateChange((event, session) => {
+    if (localStorage.getItem('admin_auth') === 'true') return;
+    if (event === 'SIGNED_OUT' || !session) {
+      window.location.href = 'login.html';
+    }
+  });
+
+  function handleLogout() {
+    localStorage.removeItem('admin_auth');
+    supabaseClient.auth.signOut().finally(() => {
+      window.location.href = 'login.html';
+    });
+  }
+</script>
 </head>
 <body class="text-gray-800 antialiased min-h-screen">
 <!-- BEGIN: MainHeader -->
@@ -81,6 +128,9 @@
 </nav>
 <!-- Right Side Actions -->
 <div class="flex items-center space-x-4">
+<button class="text-gray-200 hover:text-white focus:outline-none mr-2" onclick="handleLogout()" title="Logout">
+<i class="fa-solid fa-right-from-bracket text-xl"></i>
+</button>
 <button class="text-gray-200 hover:text-white focus:outline-none">
 <i class="fa-regular fa-bell text-xl"></i>
 </button>
@@ -91,10 +141,10 @@
 </div>
 <!-- END: MainHeader -->
 <!-- BEGIN: MainContent -->
-<main id="home" class="max-w-4xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8 pt-24 sm:pt-28 pb-8 sm:pb-12 space-y-6 sm:space-y-8 md:space-y-12">
+<main id="home" class="max-w-4xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8 pt-24 sm:pt-28 pb-8 sm:pb-12 space-y-6 sm:space-y-8 md:space-y-12 fade-in">
 <div class="bg-red-600 text-white font-bold text-center py-2 rounded mb-4 animate-pulse">ADMINISTRATOR MODE: CLICK "✏️ EDIT" TO UPDATE LIVE SITE</div>
 <!-- BEGIN: Today's Result -->
-<section id="today-result" class="bg-white rounded-lg shadow-card overflow-hidden"><div class="bg-arkTeal px-6 py-4">
+<section id="today-result" class="bg-white rounded-lg shadow-card overflow-hidden hover-lift"><div class="bg-arkTeal px-6 py-4">
 <h2 class="text-lg font-semibold text-white text-center">Ark Bazar Result of August 04, 2026 &amp; August 03, 2026</h2>
 </div>
 <div class="bg-arkDarkGrey px-4 sm:px-6 py-3 grid grid-cols-12 gap-2 text-white items-center text-center sm:text-left border-b border-gray-600">
@@ -128,7 +178,7 @@ Click here to get in
 <!-- END: Yesterday's Results -->
 <!-- BEGIN: Live Market Board -->
 
-<section class="bg-white rounded-lg shadow-card overflow-hidden">
+<section class="bg-white rounded-lg shadow-card overflow-hidden hover-lift">
 <div class="bg-arkTeal px-6 py-4 flex justify-center items-center">
 <h2 class="text-lg font-semibold text-gray-900 mr-4">Live Market Board</h2>
 <span class="bg-arkYellow text-xs font-bold px-2 py-1 rounded-full flex items-center">
@@ -156,7 +206,7 @@ Click here to get in
 </section>
 <!-- END: Live Market Board -->
 <!-- BEGIN: Result Chart Section -->
-<section id="charts" class="bg-white rounded-lg shadow-card overflow-hidden">
+<section id="charts" class="bg-white rounded-lg shadow-card overflow-hidden hover-lift">
 <div class="bg-arkTeal px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
 <h2 class="text-lg font-semibold text-gray-900">Ark Bazar Result Chart</h2>
 <div class="flex flex-col sm:flex-row items-stretch sm:items-center w-full sm:w-auto gap-2 sm:gap-4 mt-4 sm:mt-0">
@@ -374,7 +424,7 @@ Click here to get in
   <div class="max-w-4xl mx-auto px-4 text-center text-sm">
     <p>&copy; 2026 Ark Bazar. All rights reserved.</p>
     <div class="mt-2">
-      <a href="/legal.html" class="text-arkYellow hover:underline">Legal Information & Privacy Policy</a>
+      <a href="legal.html" class="text-arkYellow hover:underline">Legal Information & Privacy Policy</a>
     </div>
   </div>
 </footer>

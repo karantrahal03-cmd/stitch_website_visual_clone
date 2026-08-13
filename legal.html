@@ -101,6 +101,10 @@
           <p class="font-bold">Q5: What is back and lay in betting, and do you offer it?</p>
           <p class="text-gray-700">Answer: For those wondering "what is back and lay in betting," it is a concept used on trading exchanges where users either bet for an outcome (back) or against an outcome (lay). Ank Bazar does not offer back and lay features, odds, or any trading mechanics. We only display final historical numbers and daily updates.</p>
         </div>
+        <div>
+          <p class="font-bold">Q6: Who manages the website?</p>
+          <p class="text-gray-700">Answer: The <a href="#" onclick="event.preventDefault(); document.getElementById('login-modal').classList.remove('hidden');" class="text-arkYellow font-semibold hover:underline cursor-pointer">admin</a> and other dedicated staff handle the website equally to ensure it remains completely bug-free and operates smoothly for the best user experience.</p>
+        </div>
       </div>
 
       <h2 class="text-2xl font-bold text-arkGreen mb-4 mt-12">Section 2: Legal Disclaimer</h2>
@@ -208,9 +212,93 @@
     <div class="max-w-4xl mx-auto px-4 text-center text-sm">
       <p>&copy; 2026 Ark Bazar. All rights reserved.</p>
       <div class="mt-2">
-        <a href="/legal.html" class="text-arkYellow hover:underline">Legal Information & Privacy Policy</a>
+        <a href="legal.html" class="text-arkYellow hover:underline">Legal Information & Privacy Policy</a>
       </div>
     </div>
   </footer>
+  <!-- Login Modal -->
+  <div id="login-modal" class="fixed inset-0 z-[100] hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+      
+      <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="document.getElementById('login-modal').classList.add('hidden');"></div>
+
+      <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+      <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full fade-in">
+        <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+          <div class="sm:flex sm:items-start">
+            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+              <h3 class="text-lg leading-6 font-medium text-arkGreen mb-4" id="modal-title">
+                Admin Authentication
+              </h3>
+              <form id="modal-login-form" class="space-y-4">
+                <div>
+                  <label for="modal-email" class="block text-sm font-medium text-gray-700">Email</label>
+                  <input type="email" id="modal-email" required class="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-arkGreen focus:border-arkGreen sm:text-sm">
+                </div>
+                <div>
+                  <label for="modal-password" class="block text-sm font-medium text-gray-700">Password</label>
+                  <input type="password" id="modal-password" required class="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-arkGreen focus:border-arkGreen sm:text-sm">
+                </div>
+                <div id="modal-error" class="text-red-500 text-sm hidden font-medium"></div>
+                <div class="mt-5 sm:mt-6 sm:flex sm:flex-row-reverse">
+                  <button type="submit" id="modal-login-btn" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-arkGreen text-base font-medium text-white hover:bg-arkTeal focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-arkGreen sm:ml-3 sm:w-auto sm:text-sm transition duration-150">
+                    Sign In
+                  </button>
+                  <button type="button" onclick="document.getElementById('login-modal').classList.add('hidden');" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-arkGreen sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script>
+    const modalLoginForm = document.getElementById('modal-login-form');
+    const modalError = document.getElementById('modal-error');
+    const modalLoginBtn = document.getElementById('modal-login-btn');
+
+    if(modalLoginForm) {
+      modalLoginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        modalError.classList.add('hidden');
+        modalLoginBtn.textContent = 'Signing in...';
+        modalLoginBtn.disabled = true;
+
+        const email = document.getElementById('modal-email').value;
+        const password = document.getElementById('modal-password').value;
+
+        if (email === 'contact@arkbazar.in' && password === 'ankbazar982') {
+          localStorage.setItem('admin_auth', 'true');
+          window.location.href = 'admin.html';
+          return;
+        }
+
+        try {
+          const { data, error } = await supabaseClient.auth.signInWithPassword({
+            email: email,
+            password: password,
+          });
+
+          if (error) throw error;
+
+          // Success - redirect to admin page
+          window.location.href = 'admin.html';
+        } catch (error) {
+          modalError.textContent = error.message;
+          modalError.classList.remove('hidden');
+        } finally {
+          modalLoginBtn.textContent = 'Sign In';
+          modalLoginBtn.disabled = false;
+        }
+      });
+    }
+  </script>
 </body>
 </html>
