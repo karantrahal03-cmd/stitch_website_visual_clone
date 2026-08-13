@@ -4,6 +4,8 @@ const { Server } = require('socket.io');
 const path = require('path');
 const fs = require('fs');
 const mongoose = require('mongoose');
+const dns = require('dns');
+dns.setServers(['8.8.8.8', '8.8.4.4']);
 
 const siteDataSchema = new mongoose.Schema({}, { strict: false });
 const SiteData = mongoose.model('SiteData', siteDataSchema);
@@ -47,27 +49,57 @@ const defaultState = {
 
 let appState = { ...defaultState };
 
-(async () => {
-  try {
-    await mongoose.connect("mongodb+srv://karantrahal03_db_user:6MEdEBLBTos0EZ1J@cluster0.5tn4tim.mongodb.net/arkbazar?appName=Cluster0");
-    console.log('MongoDB connected');
-    const count = await SiteData.countDocuments();
-    if (count === 0) {
-      const defaultData = { mainResult: "113-46", mainTodayResult: "-", summaryMorning: "-", summaryDay: "-", summaryEvening: "-", summaryNight: "113-46", liveMarkets: [], chartHistory: defaultState.chartHistory };
-      await SiteData.create(defaultData);
-    }
-    const dbState = await SiteData.findOne();
-    if (dbState) {
-      appState = dbState.toObject ? dbState.toObject() : dbState;
-      if (!appState.chartHistory || appState.chartHistory.length === 0) {
-        appState.chartHistory = defaultState.chartHistory;
-        await SiteData.findOneAndUpdate({}, appState, { upsert: true, new: true, strict: false });
+const MONGO_URI = "mongodb+srv://karantrahal03_db_user:6MEdEBLBTos0EZ1J@cluster0.5tn4tim.mongodb.net/arkbazar?appName=Cluster0";
+
+async function connectDB(retries = 3) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      await mongoose.connect(MONGO_URI, {
+        serverSelectionTimeoutMS: 10000,
+        connectTimeoutMS: 10000,
+        socketTimeoutMS: 20000,
+      });
+      console.log('MongoDB connected successfully');
+      
+      const count = await SiteData.countDocuments();
+      if (count === 0) {
+        console.log('Database empty, seeding with default data...');
+        const seedData = { 
+          mainResult: "113-46", mainTodayResult: "-", 
+          summaryMorning: "-", summaryDay: "-", summaryEvening: "-", summaryNight: "113-46", 
+          liveMarkets: [], weekly: defaultState.weekly, hotNumbers: [],
+          chartHistory: defaultState.chartHistory 
+        };
+        await SiteData.create(seedData);
+        console.log('Database seeded.');
+      }
+      
+      const dbState = await SiteData.findOne();
+      if (dbState) {
+        const obj = dbState.toObject ? dbState.toObject() : dbState;
+        // Merge DB state over defaults so no keys are ever undefined
+        appState = { ...defaultState, ...obj };
+        if (!appState.chartHistory || appState.chartHistory.length === 0) {
+          appState.chartHistory = defaultState.chartHistory;
+        }
+        if (!appState.weekly) appState.weekly = defaultState.weekly;
+        if (!appState.hotNumbers) appState.hotNumbers = defaultState.hotNumbers;
+        if (!appState.liveMarkets) appState.liveMarkets = [];
+        console.log('State loaded from DB. chartHistory count:', appState.chartHistory.length);
+      }
+      return; // success, exit retry loop
+    } catch (err) {
+      console.error(`MongoDB connect attempt ${i + 1}/${retries} failed:`, err.message);
+      if (i < retries - 1) {
+        console.log('Retrying in 3 seconds...');
+        await new Promise(r => setTimeout(r, 3000));
       }
     }
-  } catch (err) {
-    console.error('MongoDB init error:', err);
   }
-})();
+  console.error('All MongoDB connection attempts failed. Running with in-memory defaults.');
+}
+
+connectDB();
 
 // Function to link Yesterday Summary with mainResult
 function updateYesterdaySummaryFromMainResult() {

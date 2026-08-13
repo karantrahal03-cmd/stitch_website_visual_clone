@@ -429,7 +429,7 @@ Click here to get in
     
     const liveContainer = document.getElementById('live-markets-container');
     liveContainer.innerHTML = '';
-    data.liveMarkets.forEach((m) => {
+    (data.liveMarkets || []).forEach((m) => {
       liveContainer.innerHTML += `
         <!-- Mobile View (Admin) -->
         <div class="sm:hidden border-b border-gray-100 p-4 space-y-3 relative">
