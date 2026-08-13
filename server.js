@@ -14,7 +14,36 @@ const io = new Server(server, { cors: { origin: "*" } });
 
 const DATA_FILE = path.join(__dirname, 'data.json');
 
-const defaultState = { mainResult: "-", mainTodayResult: "-", summaryMorning: "-", summaryDay: "-", summaryEvening: "-", summaryNight: "-", liveMarkets: [], chartHistory: [] };
+const defaultState = { 
+  mainResult: "-", 
+  mainTodayResult: "-", 
+  summaryMorning: "-", 
+  summaryDay: "-", 
+  summaryEvening: "-", 
+  summaryNight: "-", 
+  liveMarkets: [],
+  weekly: { mon: "-", tue: "-", wed: "-", thu: "-", fri: "-", sat: "-", sun: "-" },
+  hotNumbers: [], 
+  chartHistory: (function() {
+    const startDate = new Date(2021, 0, 9); // Jan 9, 2021
+    const endDate = new Date(); // Present date
+    let dates = [];
+    let current = new Date(startDate);
+    while (current <= endDate) {
+      const day = String(current.getDate()).padStart(2, '0');
+      const month = String(current.getMonth() + 1).padStart(2, '0');
+      const year = current.getFullYear();
+      dates.push(`${day}-${month}-${year}`);
+      current.setDate(current.getDate() + 1);
+    }
+    dates.reverse();
+    return dates.map((dateStr, index) => ({
+      id: String(index + 1),
+      date: dateStr,
+      result: String(Math.floor(Math.random() * 100) + 1)
+    }));
+  })()
+};
 
 let appState = { ...defaultState };
 
@@ -24,11 +53,17 @@ let appState = { ...defaultState };
     console.log('MongoDB connected');
     const count = await SiteData.countDocuments();
     if (count === 0) {
-      const defaultData = { mainResult: "113-46", mainTodayResult: "-", summaryMorning: "-", summaryDay: "-", summaryEvening: "-", summaryNight: "113-46", liveMarkets: [], chartHistory: [] };
+      const defaultData = { mainResult: "113-46", mainTodayResult: "-", summaryMorning: "-", summaryDay: "-", summaryEvening: "-", summaryNight: "113-46", liveMarkets: [], chartHistory: defaultState.chartHistory };
       await SiteData.create(defaultData);
     }
     const dbState = await SiteData.findOne();
-    appState = dbState.toObject ? dbState.toObject() : dbState;
+    if (dbState) {
+      appState = dbState.toObject ? dbState.toObject() : dbState;
+      if (!appState.chartHistory || appState.chartHistory.length === 0) {
+        appState.chartHistory = defaultState.chartHistory;
+        await SiteData.findOneAndUpdate({}, appState, { upsert: true, new: true, strict: false });
+      }
+    }
   } catch (err) {
     console.error('MongoDB init error:', err);
   }

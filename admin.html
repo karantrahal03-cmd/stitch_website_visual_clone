@@ -385,20 +385,17 @@ Click here to get in
   
   function renderChartHistory(items) {
     const historyContainer = document.getElementById('chart-history-container');
-    historyContainer.innerHTML = '';
     if (items.length === 0) {
       historyContainer.innerHTML = '<div class="text-center text-gray-500 py-4">No results found for this date.</div>';
       return;
     }
-    items.forEach((item) => {
-      historyContainer.innerHTML += `<div class="bg-gray-50 border rounded-md flex items-center justify-between px-6 py-3">
+    historyContainer.innerHTML = items.map(item => `<div class="bg-gray-50 border rounded-md flex items-center justify-between px-6 py-3">
         <div class="flex-1 text-center font-bold text-gray-700">${item.date} <button onclick="editHistory('${item.id}', 'date')" class="ml-2 text-[10px] bg-white border px-1 rounded shadow hover:bg-gray-100">✏️</button></div>
         <div class="flex-1 text-center font-bold text-arkGreen text-lg">${item.result} <button onclick="editHistory('${item.id}', 'result')" class="ml-2 text-[10px] bg-white border px-1 rounded shadow hover:bg-gray-100">✏️</button></div>
         <div class="w-[100px] text-right">
           <button onclick="deleteHistory('${item.id}')" class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded border border-red-300 shadow hover:bg-red-200">🗑️ Delete</button>
         </div>
-      </div>`;
-    });
+      </div>`).join('');
   }
 
   document.addEventListener("DOMContentLoaded", () => {
@@ -496,28 +493,40 @@ Click here to get in
       `;
     });
     
-    safeText('weekly-mon', data.weekly.mon);
-    safeText('weekly-tue', data.weekly.tue);
-    safeText('weekly-wed', data.weekly.wed);
-    safeText('weekly-thu', data.weekly.thu);
-    safeText('weekly-fri', data.weekly.fri);
-    safeText('weekly-sat', data.weekly.sat);
-    safeText('weekly-sun', data.weekly.sun);
+    safeText('weekly-mon', data.weekly?.mon || "-");
+    safeText('weekly-tue', data.weekly?.tue || "-");
+    safeText('weekly-wed', data.weekly?.wed || "-");
+    safeText('weekly-thu', data.weekly?.thu || "-");
+    safeText('weekly-fri', data.weekly?.fri || "-");
+    safeText('weekly-sat', data.weekly?.sat || "-");
+    safeText('weekly-sun', data.weekly?.sun || "-");
     
     // Render auto-calculated hot numbers
     const hotContainer = document.getElementById('hot-numbers-container');
     hotContainer.innerHTML = '';
-    if(data.hotNumbers.length === 0) {
+    const hots = data.hotNumbers || [];
+    if(hots.length === 0) {
        hotContainer.innerHTML = '<div class="text-gray-500 text-sm italic w-full">No hot numbers available.</div>';
     } else {
-       data.hotNumbers.forEach((num) => {
+       hots.forEach((num) => {
          hotContainer.innerHTML += `<span class="w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold text-sm">${num}</span>`;
        });
     }
     
-    // Render chart history with edit buttons
     window.fullChartHistory = data.chartHistory || [];
-    renderChartHistory(window.fullChartHistory);
+    if (!document.getElementById('chart-date-input').value) {
+      renderChartHistory(window.fullChartHistory.slice(0, 3));
+    } else {
+      const dateInput = document.getElementById('chart-date-input').value;
+      const parts = dateInput.split('-');
+      if (parts.length === 3) {
+        const formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+        const filtered = window.fullChartHistory.filter(item => item.date === formattedDate);
+        renderChartHistory(filtered);
+      } else {
+        renderChartHistory(window.fullChartHistory.slice(0, 3));
+      }
+    }
   }
 
   document.addEventListener("DOMContentLoaded", () => {
