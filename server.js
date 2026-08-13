@@ -11,6 +11,8 @@ const siteDataSchema = new mongoose.Schema({}, { strict: false });
 const SiteData = mongoose.model('SiteData', siteDataSchema);
 
 const app = express();
+const cors = require('cors');
+app.use(cors({ origin: '*' }));
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
 

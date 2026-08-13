@@ -363,8 +363,8 @@ Click here to get in
 
 <script src="https://cdn.socket.io/4.7.2/socket.io.min.js?v=2.0"></script>
 <script>
-  const serverUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:') ? 'http://localhost:3000' : '';
-  const socket = io({ transports: ["websocket", "polling"] });
+  const serverUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:') ? 'https://ankbazar.onrender.com' : '';
+  const socket = io(serverUrl || undefined, { transports: ["websocket", "polling"] });
   socket.on('connect', () => { socket.emit('request_initial_state'); });
   window.fullChartHistory = [];
   
@@ -501,7 +501,7 @@ Click here to get in
       }
     } catch(e) { console.error("Initial state error:", e); }
     
-    fetch('/api/state?t=' + new Date().getTime())
+    fetch((serverUrl ? serverUrl : '') + '/api/state?t=' + new Date().getTime())
       .then(res => res.json())
       .then(data => updateUI(data))
       .catch(err => console.error("Error fetching initial state:", err));
