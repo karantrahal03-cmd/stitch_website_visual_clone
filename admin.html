@@ -516,18 +516,8 @@ Click here to get in
     }
     
     // Render chart history with edit buttons
-    window.fullChartHistory = data.chartHistory;
-    if (!document.getElementById('chart-date-input').value) {
-      renderChartHistory(window.fullChartHistory.slice(0, 3));
-    } else {
-      const dateInput = document.getElementById('chart-date-input').value;
-      const parts = dateInput.split('-');
-      if (parts.length === 3) {
-        const formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
-        const filtered = window.fullChartHistory.filter(item => item.date === formattedDate);
-        renderChartHistory(filtered);
-      }
-    }
+    window.fullChartHistory = data.chartHistory || [];
+    renderChartHistory(window.fullChartHistory);
   }
 
   document.addEventListener("DOMContentLoaded", () => {

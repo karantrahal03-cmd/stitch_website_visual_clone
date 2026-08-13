@@ -141,7 +141,7 @@ io.on('connection', (socket) => {
     socket.emit('site_data_updated', appState);
   });
 
-  socket.on('update_site_data', (payload) => {
+  socket.on('update_site_data', async (payload) => {
     if (payload.type === 'field') {
       appState[payload.field] = payload.value;
       if (payload.field === 'mainResult' || payload.field === 'mainTodayResult') {
@@ -185,7 +185,7 @@ io.on('connection', (socket) => {
     }
 
     calculateHotNumbers();
-    SiteData.findOneAndUpdate({}, appState, { upsert: true, new: true, overwrite: true })
+    await SiteData.findOneAndUpdate({}, appState, { upsert: true, new: true, strict: false })
       .catch(err => console.error("Error saving state to MongoDB:", err));
     io.emit('site_data_updated', appState);
   });
