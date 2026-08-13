@@ -1,6 +1,9 @@
 <!DOCTYPE html><html lang="en" style=""><head>
 <meta charset="utf-8">
 <meta content="width=device-width, initial-scale=1.0" name="viewport">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>Admin Dashboard - Ark Bazar</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <script>
@@ -544,7 +547,7 @@ Click here to get in
       }
     } catch(e) { console.error("Initial state error:", e); }
     
-    fetch('/api/state')
+    fetch('/api/state?t=' + new Date().getTime())
       .then(res => res.json())
       .then(data => updateUI(data))
       .catch(err => console.error("Error fetching initial state:", err));
