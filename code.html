@@ -106,7 +106,7 @@
 </div>
 </div>
 <div class="col-span-6 sm:col-span-3 text-center">
-<div id="main-result" class="text-4xl sm:text-5xl font-black text-gray-800">113-46</div>
+<div id="main-result" class="text-4xl sm:text-5xl font-black text-gray-800"><span id="main-result-display">--</span></div>
 </div>
 <div class="col-span-6 sm:col-span-3 text-center">
 <div id="main-today-result" class="text-4xl sm:text-5xl font-black text-gray-800">-</div>
@@ -362,6 +362,7 @@ Click here to get in
 <script>
   const serverUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:') ? 'http://localhost:3000' : '';
   const socket = io({ transports: ["websocket", "polling"] });
+  socket.on('connect', () => { socket.emit('request_initial_state'); });
   window.fullChartHistory = [];
   
   function renderChartHistory(items) {

@@ -3,6 +3,16 @@ const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
 const fs = require('fs');
+const mongoose = require('mongoose');
+
+mongoose.connect("mongodb+srv://karantrahal03_db_user:6MEdEBLBTos0EZ1J@cluster0.5tn4tim.mongodb.net/arkbazar?appName=Cluster0")
+  .then(() => console.log('MongoDB connected'))
+  .catch(err => console.error('MongoDB connection error:', err));
+
+const siteDataSchema = new mongoose.Schema({
+  appState: { type: mongoose.Schema.Types.Mixed }
+});
+const SiteData = mongoose.model('SiteData', siteDataSchema);
 
 const app = express();
 const server = http.createServer(app);
@@ -45,15 +55,15 @@ let appState = {
   lastKnownDate: ""
 };
 
-if (fs.existsSync(DATA_FILE)) {
-  try {
-    const rawData = fs.readFileSync(DATA_FILE, 'utf8');
-    const parsed = JSON.parse(rawData);
-    appState = { ...appState, ...parsed };
-  } catch (err) {
-    console.error("Error reading data.json:", err);
+SiteData.findOne().then(doc => {
+  if (doc && doc.appState) {
+    appState = doc.appState;
+    console.log("Loaded appState from MongoDB");
+  } else {
+    const newSiteData = new SiteData({ appState });
+    newSiteData.save().then(() => console.log("Created default appState in MongoDB"));
   }
-}
+}).catch(err => console.error("Error querying SiteData:", err));
 
 // Function to link Yesterday Summary with mainResult
 function updateYesterdaySummaryFromMainResult() {
@@ -74,11 +84,7 @@ function updateYesterdaySummaryFromMainResult() {
 
 // Ensure summaries are perfectly in sync with mainResult on startup
 
-function saveData() {
-  fs.writeFile(DATA_FILE, JSON.stringify(appState, null, 2), (err) => {
-    if (err) console.error("Error saving to data.json:", err);
-  });
-}
+
 
 const parseTimes = (timeStr) => {
   if(!timeStr) return [];
@@ -162,6 +168,10 @@ calculateHotNumbers();
 io.on('connection', (socket) => {
   socket.emit('site_data_updated', appState);
 
+  socket.on('request_initial_state', () => {
+    socket.emit('site_data_updated', appState);
+  });
+
   socket.on('update_site_data', (payload) => {
     if (payload.type === 'field') {
       appState[payload.field] = payload.value;
@@ -206,7 +216,8 @@ io.on('connection', (socket) => {
     }
 
     calculateHotNumbers();
-    saveData();
+    SiteData.findOneAndUpdate({}, { appState }, { upsert: true, new: true })
+      .catch(err => console.error("Error saving state to MongoDB:", err));
     io.emit('site_data_updated', appState);
   });
 
@@ -272,7 +283,8 @@ function updateLiveStatus() {
     });
 
     if (stateChanged) {
-      saveData();
+      SiteData.findOneAndUpdate({}, { appState }, { upsert: true, new: true })
+        .catch(err => console.error("Error saving state to MongoDB on live status update:", err));
       io.emit('site_data_updated', appState);
     }
   } catch (e) {
