@@ -361,7 +361,7 @@ Click here to get in
 <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 <script>
   const serverUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:') ? 'http://localhost:3000' : '';
-  const socket = io(serverUrl);
+  const socket = io();
   window.fullChartHistory = [];
   
   function renderChartHistory(items) {
