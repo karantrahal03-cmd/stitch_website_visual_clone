@@ -13,7 +13,7 @@
       "openTime": "09:00 AM",
       "closeTime": "07:00 PM",
       "result": "-",
-      "status": "RESULT OUT"
+      "status": "LIVE"
     }
   ],
   "weekly": {
@@ -10239,5 +10239,5 @@
       "result": "23"
     }
   ],
-  "lastKnownDate": "12-08-2026"
+  "lastKnownDate": "13-08-2026"
 }
