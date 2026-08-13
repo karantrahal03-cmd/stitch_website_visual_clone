@@ -5,13 +5,7 @@ const path = require('path');
 const fs = require('fs');
 const mongoose = require('mongoose');
 
-mongoose.connect("mongodb+srv://karantrahal03_db_user:6MEdEBLBTos0EZ1J@cluster0.5tn4tim.mongodb.net/arkbazar?appName=Cluster0")
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.error('MongoDB connection error:', err));
-
-const siteDataSchema = new mongoose.Schema({
-  appState: { type: mongoose.Schema.Types.Mixed }
-});
+const siteDataSchema = new mongoose.Schema({}, { strict: false });
 const SiteData = mongoose.model('SiteData', siteDataSchema);
 
 const app = express();
@@ -20,50 +14,21 @@ const io = new Server(server, { cors: { origin: "*" } });
 
 const DATA_FILE = path.join(__dirname, 'data.json');
 
-let appState = {
-  mainResult: "113-46",
-  mainResultTime: "03:00 PM",
-  mainTodayResult: "-",
-  summaryMorning: "-",
-  summaryDay: "113-46",
-  summaryEvening: "-",
-  summaryNight: "-",
-  liveMarkets: [
-    { id: "m1", name: "Ark Bazar", openTime: "09:00 AM", closeTime: "07:00 PM", result: "-", status: "CLOSED" }
-  ],
-  weekly: { mon: "---", tue: "---", wed: "---", thu: "---", fri: "---", sat: "---", sun: "---" },
-  hotNumbers: ["--", "--", "--"],
-  chartHistory: (function() {
-    const startDate = new Date(2021, 0, 9); // Jan 9, 2021
-    const endDate = new Date(); // Present date
-    let dates = [];
-    let current = new Date(startDate);
-    while (current <= endDate) {
-      const day = String(current.getDate()).padStart(2, '0');
-      const month = String(current.getMonth() + 1).padStart(2, '0');
-      const year = current.getFullYear();
-      dates.push(`${day}-${month}-${year}`);
-      current.setDate(current.getDate() + 1);
-    }
-    dates.reverse();
-    return dates.map((dateStr, index) => ({
-      id: String(index + 1),
-      date: dateStr,
-      result: String(Math.floor(Math.random() * 100) + 1)
-    }));
-  })(),
-  lastKnownDate: ""
-};
+const defaultState = { mainResult: "-", mainTodayResult: "-", summaryMorning: "-", summaryDay: "-", summaryEvening: "-", summaryNight: "-", liveMarkets: [], chartHistory: [] };
 
-SiteData.findOne().then(doc => {
-  if (doc && doc.appState) {
-    appState = doc.appState;
-    console.log("Loaded appState from MongoDB");
-  } else {
-    const newSiteData = new SiteData({ appState });
-    newSiteData.save().then(() => console.log("Created default appState in MongoDB"));
+let appState = { ...defaultState };
+
+(async () => {
+  try {
+    await mongoose.connect("mongodb+srv://karantrahal03_db_user:6MEdEBLBTos0EZ1J@cluster0.5tn4tim.mongodb.net/arkbazar?appName=Cluster0");
+    console.log('MongoDB connected');
+    let dbState = await SiteData.findOne();
+    if (!dbState) { dbState = await SiteData.create(defaultState); }
+    appState = dbState.toObject ? dbState.toObject() : dbState;
+  } catch (err) {
+    console.error('MongoDB init error:', err);
   }
-}).catch(err => console.error("Error querying SiteData:", err));
+})();
 
 // Function to link Yesterday Summary with mainResult
 function updateYesterdaySummaryFromMainResult() {
@@ -216,7 +181,7 @@ io.on('connection', (socket) => {
     }
 
     calculateHotNumbers();
-    SiteData.findOneAndUpdate({}, { appState }, { upsert: true, new: true })
+    SiteData.findOneAndUpdate({}, appState, { upsert: true, new: true, overwrite: true })
       .catch(err => console.error("Error saving state to MongoDB:", err));
     io.emit('site_data_updated', appState);
   });
@@ -283,7 +248,7 @@ function updateLiveStatus() {
     });
 
     if (stateChanged) {
-      SiteData.findOneAndUpdate({}, { appState }, { upsert: true, new: true })
+      SiteData.findOneAndUpdate({}, appState, { upsert: true, new: true, overwrite: true })
         .catch(err => console.error("Error saving state to MongoDB on live status update:", err));
       io.emit('site_data_updated', appState);
     }
