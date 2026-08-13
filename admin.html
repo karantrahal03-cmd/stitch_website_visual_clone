@@ -481,11 +481,8 @@ Click here to get in
       else safeText('main-result', data.mainResult || "-");
       safeText('main-today-result', data.mainTodayResult || "-");
       
-      const liveContainer = document.getElementById('live-markets-container');
       if (liveContainer) {
-        liveContainer.innerHTML = '';
-        (data.liveMarkets || []).forEach((m) => {
-          liveContainer.innerHTML += `
+        liveContainer.innerHTML = (data.liveMarkets || []).map(m => `
             <!-- Mobile View (Admin) -->
             <div class="sm:hidden border-b border-gray-100 p-4 space-y-3 relative">
               <div class="flex justify-between items-center">
@@ -545,8 +542,7 @@ Click here to get in
                 <button onclick="deleteLiveMarket('${m.id}')" class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded border border-red-300 shadow hover:bg-red-200 transition-colors">🗑️ Delete</button>
               </div>
             </div>
-          `;
-        });
+          `).join('');
       }
       
       safeText('weekly-mon', data.weekly?.mon || "-");
@@ -560,14 +556,11 @@ Click here to get in
       // Render auto-calculated hot numbers
       const hotContainer = document.getElementById('hot-numbers-container');
       if (hotContainer) {
-        hotContainer.innerHTML = '';
         const hots = data.hotNumbers || [];
         if(hots.length === 0) {
            hotContainer.innerHTML = '<div class="text-gray-500 text-sm italic w-full">No hot numbers available.</div>';
         } else {
-           hots.forEach((num) => {
-             hotContainer.innerHTML += `<span class="w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold text-sm">${num}</span>`;
-           });
+           hotContainer.innerHTML = hots.map(num => `<span class="w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold text-sm hover-lift cursor-default transition-all duration-300">${num}</span>`).join('');
         }
       }
       
