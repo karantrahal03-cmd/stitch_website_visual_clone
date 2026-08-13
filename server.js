@@ -22,8 +22,12 @@ let appState = { ...defaultState };
   try {
     await mongoose.connect("mongodb+srv://karantrahal03_db_user:6MEdEBLBTos0EZ1J@cluster0.5tn4tim.mongodb.net/arkbazar?appName=Cluster0");
     console.log('MongoDB connected');
-    let dbState = await SiteData.findOne();
-    if (!dbState) { dbState = await SiteData.create(defaultState); }
+    const count = await SiteData.countDocuments();
+    if (count === 0) {
+      const defaultData = { mainResult: "113-46", mainTodayResult: "-", summaryMorning: "-", summaryDay: "-", summaryEvening: "-", summaryNight: "113-46", liveMarkets: [], chartHistory: [] };
+      await SiteData.create(defaultData);
+    }
+    const dbState = await SiteData.findOne();
     appState = dbState.toObject ? dbState.toObject() : dbState;
   } catch (err) {
     console.error('MongoDB init error:', err);
