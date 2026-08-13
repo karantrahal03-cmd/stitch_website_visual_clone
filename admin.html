@@ -417,122 +417,133 @@ Click here to get in
   });
 
   function updateUI(data) {
-    if (!data) return;
-    const safeText = (id, txt) => {
-      const el = document.getElementById(id);
-      if (el && el.innerText !== String(txt)) el.innerText = txt;
-    };
-    safeText('main-result-time', 'at ' + (data.mainResultTime || ""));
-    if (document.getElementById('main-result-display')) document.getElementById('main-result-display').innerText = data.mainResult || "-";
-    else safeText('main-result', data.mainResult || "-");
-    safeText('main-today-result', data.mainTodayResult || "-");
-    
-    const liveContainer = document.getElementById('live-markets-container');
-    liveContainer.innerHTML = '';
-    (data.liveMarkets || []).forEach((m) => {
-      liveContainer.innerHTML += `
-        <!-- Mobile View (Admin) -->
-        <div class="sm:hidden border-b border-gray-100 p-4 space-y-3 relative">
-          <div class="flex justify-between items-center">
-            <div>
-              <div class="font-bold flex items-center space-x-2 text-base text-gray-900">
-                <span>${m.name}</span>
-                <i class="fa-solid fa-star text-arkYellow text-xs"></i>
+    try {
+      if (!data) return;
+      const safeText = (id, txt) => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = String(txt || "-");
+      };
+      safeText('main-result-time', 'at ' + (data.mainResultTime || ""));
+      if (document.getElementById('main-result-display')) document.getElementById('main-result-display').innerText = data.mainResult || "-";
+      else safeText('main-result', data.mainResult || "-");
+      safeText('main-today-result', data.mainTodayResult || "-");
+      
+      const liveContainer = document.getElementById('live-markets-container');
+      if (liveContainer) {
+        liveContainer.innerHTML = '';
+        (data.liveMarkets || []).forEach((m) => {
+          liveContainer.innerHTML += `
+            <!-- Mobile View (Admin) -->
+            <div class="sm:hidden border-b border-gray-100 p-4 space-y-3 relative">
+              <div class="flex justify-between items-center">
+                <div>
+                  <div class="font-bold flex items-center space-x-2 text-base text-gray-900">
+                    <span>${m.name}</span>
+                    <i class="fa-solid fa-star text-arkYellow text-xs"></i>
+                  </div>
+                  <div class="mt-1"><button onclick="editLiveMarket('${m.id}', 'name')" class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️ Edit</button></div>
+                </div>
+                <span class="bg-gray-200 text-gray-600 text-[10px] font-bold px-2 py-1 rounded border border-gray-300 uppercase">${m.status}</span>
               </div>
-              <div class="mt-1"><button onclick="editLiveMarket('${m.id}', 'name')" class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️ Edit</button></div>
+              <div class="flex flex-col space-y-2 text-xs text-gray-600 bg-gray-50 p-3 rounded">
+                <div class="flex justify-between items-center">
+                  <span>Open: <span class="font-semibold text-gray-900">${m.openTime}</span></span>
+                  <button onclick="editLiveMarket('${m.id}', 'openTime')" class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️ Edit</button>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span>Close: <span class="font-semibold text-gray-900">${m.closeTime}</span></span>
+                  <button onclick="editLiveMarket('${m.id}', 'closeTime')" class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️ Edit</button>
+                </div>
+              </div>
+              <div class="flex justify-between items-center px-2">
+                <div class="text-xs font-bold text-gray-500 uppercase">Result:</div>
+                <div class="flex flex-col items-center">
+                  <div class="font-black text-arkGreen text-2xl">${m.result}</div>
+                  <div class="mt-1"><button onclick="editLiveMarket('${m.id}', 'result')" class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️ Edit</button></div>
+                </div>
+                <button onclick="deleteLiveMarket('${m.id}')" class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded border border-red-300 shadow hover:bg-red-200">🗑️ Delete</button>
+              </div>
             </div>
-            <span class="bg-gray-200 text-gray-600 text-[10px] font-bold px-2 py-1 rounded border border-gray-300 uppercase">${m.status}</span>
-          </div>
-          <div class="flex flex-col space-y-2 text-xs text-gray-600 bg-gray-50 p-3 rounded">
-            <div class="flex justify-between items-center">
-              <span>Open: <span class="font-semibold text-gray-900">${m.openTime}</span></span>
-              <button onclick="editLiveMarket('${m.id}', 'openTime')" class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️ Edit</button>
+            <!-- Desktop View (Admin) -->
+            <div class="hidden sm:grid grid-cols-6 gap-4 py-4 px-6 border-b border-gray-100 items-center text-center text-sm hover:bg-gray-50 transition-colors">
+              <div class="col-span-1 text-left flex flex-col justify-center">
+                <div class="font-bold flex items-center space-x-2 text-gray-900">
+                  <span>${m.name}</span>
+                  <i class="fa-solid fa-star text-arkYellow text-xs"></i>
+                </div>
+                <div class="mt-1"><button onclick="editLiveMarket('${m.id}', 'name')" class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️ Edit</button></div>
+              </div>
+              <div class="flex flex-col justify-center text-gray-700">
+                <div>${m.openTime}</div>
+                <div class="mt-1 flex justify-center"><button onclick="editLiveMarket('${m.id}', 'openTime')" class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️ Edit</button></div>
+              </div>
+              <div class="flex flex-col justify-center text-gray-700">
+                <div>${m.closeTime}</div>
+                <div class="mt-1 flex justify-center"><button onclick="editLiveMarket('${m.id}', 'closeTime')" class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️ Edit</button></div>
+              </div>
+              <div class="flex flex-col justify-center">
+                <div class="font-bold text-arkGreen text-xl">${m.result}</div>
+                <div class="mt-1 flex justify-center"><button onclick="editLiveMarket('${m.id}', 'result')" class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️ Edit</button></div>
+              </div>
+              <div class="flex flex-col justify-center">
+                <span class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded border border-gray-300 w-max mx-auto font-medium uppercase">${m.status}</span>
+              </div>
+              <div class="flex flex-col justify-center">
+                <button onclick="deleteLiveMarket('${m.id}')" class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded border border-red-300 shadow hover:bg-red-200 transition-colors">🗑️ Delete</button>
+              </div>
             </div>
-            <div class="flex justify-between items-center">
-              <span>Close: <span class="font-semibold text-gray-900">${m.closeTime}</span></span>
-              <button onclick="editLiveMarket('${m.id}', 'closeTime')" class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️ Edit</button>
-            </div>
-          </div>
-          <div class="flex justify-between items-center px-2">
-            <div class="text-xs font-bold text-gray-500 uppercase">Result:</div>
-            <div class="flex flex-col items-center">
-              <div class="font-black text-arkGreen text-2xl">${m.result}</div>
-              <div class="mt-1"><button onclick="editLiveMarket('${m.id}', 'result')" class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️ Edit</button></div>
-            </div>
-            <button onclick="deleteLiveMarket('${m.id}')" class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded border border-red-300 shadow hover:bg-red-200">🗑️ Delete</button>
-          </div>
-        </div>
-        <!-- Desktop View (Admin) -->
-        <div class="hidden sm:grid grid-cols-6 gap-4 py-4 px-6 border-b border-gray-100 items-center text-center text-sm hover:bg-gray-50 transition-colors">
-          <div class="col-span-1 text-left flex flex-col justify-center">
-            <div class="font-bold flex items-center space-x-2 text-gray-900">
-              <span>${m.name}</span>
-              <i class="fa-solid fa-star text-arkYellow text-xs"></i>
-            </div>
-            <div class="mt-1"><button onclick="editLiveMarket('${m.id}', 'name')" class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️ Edit</button></div>
-          </div>
-          <div class="flex flex-col justify-center text-gray-700">
-            <div>${m.openTime}</div>
-            <div class="mt-1 flex justify-center"><button onclick="editLiveMarket('${m.id}', 'openTime')" class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️ Edit</button></div>
-          </div>
-          <div class="flex flex-col justify-center text-gray-700">
-            <div>${m.closeTime}</div>
-            <div class="mt-1 flex justify-center"><button onclick="editLiveMarket('${m.id}', 'closeTime')" class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️ Edit</button></div>
-          </div>
-          <div class="flex flex-col justify-center">
-            <div class="font-bold text-arkGreen text-xl">${m.result}</div>
-            <div class="mt-1 flex justify-center"><button onclick="editLiveMarket('${m.id}', 'result')" class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️ Edit</button></div>
-          </div>
-          <div class="flex flex-col justify-center">
-            <span class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded border border-gray-300 w-max mx-auto font-medium uppercase">${m.status}</span>
-          </div>
-          <div class="flex flex-col justify-center">
-            <button onclick="deleteLiveMarket('${m.id}')" class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded border border-red-300 shadow hover:bg-red-200 transition-colors">🗑️ Delete</button>
-          </div>
-        </div>
-      `;
-    });
-    
-    safeText('weekly-mon', data.weekly?.mon || "-");
-    safeText('weekly-tue', data.weekly?.tue || "-");
-    safeText('weekly-wed', data.weekly?.wed || "-");
-    safeText('weekly-thu', data.weekly?.thu || "-");
-    safeText('weekly-fri', data.weekly?.fri || "-");
-    safeText('weekly-sat', data.weekly?.sat || "-");
-    safeText('weekly-sun', data.weekly?.sun || "-");
-    
-    // Render auto-calculated hot numbers
-    const hotContainer = document.getElementById('hot-numbers-container');
-    hotContainer.innerHTML = '';
-    const hots = data.hotNumbers || [];
-    if(hots.length === 0) {
-       hotContainer.innerHTML = '<div class="text-gray-500 text-sm italic w-full">No hot numbers available.</div>';
-    } else {
-       hots.forEach((num) => {
-         hotContainer.innerHTML += `<span class="w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold text-sm">${num}</span>`;
-       });
-    }
-    
-    window.fullChartHistory = data.chartHistory || [];
-    if (!document.getElementById('chart-date-input').value) {
-      renderChartHistory(window.fullChartHistory.slice(0, 3));
-    } else {
-      const dateInput = document.getElementById('chart-date-input').value;
-      const parts = dateInput.split('-');
-      if (parts.length === 3) {
-        const formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
-        const filtered = window.fullChartHistory.filter(item => item.date === formattedDate);
-        renderChartHistory(filtered);
-      } else {
-        renderChartHistory(window.fullChartHistory.slice(0, 3));
+          `;
+        });
       }
+      
+      safeText('weekly-mon', data.weekly?.mon || "-");
+      safeText('weekly-tue', data.weekly?.tue || "-");
+      safeText('weekly-wed', data.weekly?.wed || "-");
+      safeText('weekly-thu', data.weekly?.thu || "-");
+      safeText('weekly-fri', data.weekly?.fri || "-");
+      safeText('weekly-sat', data.weekly?.sat || "-");
+      safeText('weekly-sun', data.weekly?.sun || "-");
+      
+      // Render auto-calculated hot numbers
+      const hotContainer = document.getElementById('hot-numbers-container');
+      if (hotContainer) {
+        hotContainer.innerHTML = '';
+        const hots = data.hotNumbers || [];
+        if(hots.length === 0) {
+           hotContainer.innerHTML = '<div class="text-gray-500 text-sm italic w-full">No hot numbers available.</div>';
+        } else {
+           hots.forEach((num) => {
+             hotContainer.innerHTML += `<span class="w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold text-sm">${num}</span>`;
+           });
+        }
+      }
+      
+      window.fullChartHistory = data.chartHistory || [];
+      if (!document.getElementById('chart-date-input') || !document.getElementById('chart-date-input').value) {
+        renderChartHistory(window.fullChartHistory.slice(0, 3));
+      } else {
+        const dateInput = document.getElementById('chart-date-input').value;
+        const parts = dateInput.split('-');
+        if (parts.length === 3) {
+          const formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+          const filtered = window.fullChartHistory.filter(item => item.date === formattedDate);
+          renderChartHistory(filtered);
+        } else {
+          renderChartHistory(window.fullChartHistory.slice(0, 3));
+        }
+      }
+    } catch (err) {
+      console.error("updateUI error:", err);
     }
   }
 
   document.addEventListener("DOMContentLoaded", () => {
-    if (window.__INITIAL_STATE__) {
-      updateUI(window.__INITIAL_STATE__);
-    }
+    try {
+      if (window.__INITIAL_STATE__) {
+        updateUI(window.__INITIAL_STATE__);
+      }
+    } catch(e) { console.error("Initial state error:", e); }
+    
     fetch('/api/state')
       .then(res => res.json())
       .then(data => updateUI(data))
