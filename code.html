@@ -361,7 +361,7 @@ Click here to get in
 <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 <script>
   const serverUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:') ? 'http://localhost:3000' : '';
-  const socket = io();
+  const socket = io({ transports: ["websocket", "polling"] });
   window.fullChartHistory = [];
   
   function renderChartHistory(items) {
@@ -484,6 +484,10 @@ Click here to get in
     if (window.__INITIAL_STATE__) {
       renderAllData(window.__INITIAL_STATE__);
     }
+    fetch('/api/state')
+      .then(res => res.json())
+      .then(data => renderAllData(data))
+      .catch(err => console.error("Error fetching initial state:", err));
   });
 
   socket.on('site_data_updated', (data) => {

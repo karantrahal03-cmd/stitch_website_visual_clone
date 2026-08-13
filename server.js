@@ -6,7 +6,7 @@ const fs = require('fs');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server, { cors: { origin: "*" } });
 
 const DATA_FILE = path.join(__dirname, 'data.json');
 
@@ -116,6 +116,10 @@ app.get('/', (req, res) => {
 
 app.get('/legal', (req, res) => {
   res.sendFile(path.join(__dirname, 'legal.html'));
+});
+
+app.get('/api/state', (req, res) => {
+  res.json(appState);
 });
 
 app.get('/dash-xyz987', (req, res) => {
