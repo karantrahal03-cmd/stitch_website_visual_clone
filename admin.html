@@ -145,7 +145,7 @@
 <div class="bg-red-600 text-white font-bold text-center py-2 rounded mb-4 animate-pulse">ADMINISTRATOR MODE: CLICK "✏️ EDIT" TO UPDATE LIVE SITE</div>
 <!-- BEGIN: Today's Result -->
 <section id="today-result" class="bg-white rounded-lg shadow-card overflow-hidden hover-lift"><div class="bg-arkTeal px-6 py-4">
-<h2 class="text-lg font-semibold text-white text-center">Ark Bazar Result of August 04, 2026 &amp; August 03, 2026</h2>
+<h2 class="text-lg font-semibold text-white text-center">Ark Bazar Result</h2>
 </div>
 <div class="bg-arkDarkGrey px-4 sm:px-6 py-3 grid grid-cols-12 gap-2 text-white items-center text-center sm:text-left border-b border-gray-600">
 <div class="col-span-12 sm:col-span-6 font-bold text-sm sm:text-base text-center sm:text-left mb-2 sm:mb-0">Regional Offline Draw Results</div>
@@ -188,10 +188,11 @@ Click here to get in
 </div>
 <div class="overflow-x-auto w-full">
   <div class="w-full">
-    <div class="hidden sm:grid bg-arkYellow px-6 py-3 grid-cols-6 gap-4 text-sm font-semibold text-gray-800 text-center">
+    <div class="hidden sm:grid bg-arkYellow px-6 py-3 grid-cols-7 gap-4 text-sm font-semibold text-gray-800 text-center">
       <div class="col-span-1 text-left">Market Name</div>
       <div class="">Open Time</div>
       <div class="">Close Time</div>
+      <div class="">Chart</div>
       <div class="">Result</div>
       <div class="">Status</div>
       <div class="">To Get</div>
@@ -308,7 +309,7 @@ Click here to get in
 </div>
 <div>
 <div class="text-xs font-semibold text-gray-500 tracking-wider uppercase mb-1">Email Us</div>
-<a class="text-gray-900 font-bold hover:text-arkGreen" href="mailto:contact@arkbazar.in">contact@arkbazar.in</a>
+<a class="text-gray-900 font-bold hover:text-arkGreen" href="mailto:contact@ankbazar.in">contact@ankbazar.in</a>
 </div>
 </div>
 <!-- Instagram Card -->
@@ -318,7 +319,7 @@ Click here to get in
 </div>
 <div>
 <div class="text-xs font-semibold text-gray-500 tracking-wider uppercase mb-1">Follow Us</div>
-<a class="text-gray-900 font-bold hover:text-arkYellow" href="#">@arkbazar on Instagram</a>
+<a class="text-gray-900 font-bold hover:text-arkYellow" href="#">@ankbazar on Instagram</a>
 </div>
 </div>
 </div>
@@ -482,6 +483,29 @@ Click here to get in
     try {
       if (!data) return;
       window.appState = data;
+      
+      // Auto-reset logic at midnight
+      const todayStr = new Date().toDateString();
+      if (data.lastResetDate !== todayStr) {
+        if (data.lastResetDate) {
+           if (data.mainTodayResult && data.mainTodayResult !== "-") {
+               data.mainResult = data.mainTodayResult;
+           }
+        }
+        data.mainTodayResult = "-";
+        if (data.liveMarkets) {
+           data.liveMarkets.forEach(m => m.result = "-");
+        }
+        data.lastResetDate = todayStr;
+        
+        if (window.supabaseClient) {
+          const toSave = { ...data };
+          delete toSave._id;
+          delete toSave.__v;
+          window.supabaseClient.from('SiteData').upsert({ ...toSave, id: 1 }).then(() => {});
+        }
+      }
+
       const safeText = (id, txt) => {
         const el = document.getElementById(id);
         if (el) el.innerText = String(txt || "-");
@@ -491,9 +515,42 @@ Click here to get in
       else safeText('main-result', data.mainResult || "-");
       safeText('main-today-result', data.mainTodayResult || "-");
       
+      function getMarketStatus(m) {
+        if (m.result && m.result !== "-" && m.result !== "--") return "RESULT OUT";
+        const now = new Date();
+        const parseT = (str) => {
+          if (!str) return null;
+          const parts = str.trim().split(/\s+/);
+          if (parts.length < 2) return null;
+          let [h, mins] = parts[0].split(':').map(Number);
+          const ampm = parts[1].toUpperCase();
+          if (ampm === 'PM' && h < 12) h += 12;
+          if (ampm === 'AM' && h === 12) h = 0;
+          const d = new Date(now);
+          d.setHours(h, mins, 0, 0);
+          return d;
+        };
+        const op = parseT(m.openTime);
+        const cl = parseT(m.closeTime);
+        if (!op || !cl) return "CLOSED";
+        if (now < op) return "CLOSED";
+        if (now >= op && now < cl) return "LIVE";
+        return "RESULT OUT";
+      }
+      
       const liveContainer = document.getElementById('live-markets-container');
       if (liveContainer) {
-        liveContainer.innerHTML = (data.liveMarkets || []).map(m => `
+        liveContainer.innerHTML = (data.liveMarkets || []).map(m => {
+            const dynamicStatus = getMarketStatus(m);
+            let statusBadge = '';
+            if (dynamicStatus === 'LIVE') {
+              statusBadge = '<span class="bg-red-100 text-red-600 font-bold text-[10px] px-2 py-0.5 rounded border border-red-300 animate-pulse uppercase">LIVE</span>';
+            } else if (dynamicStatus === 'RESULT OUT') {
+              statusBadge = '<span class="bg-green-100 text-green-700 font-bold text-[10px] px-2 py-0.5 rounded border border-green-300 uppercase">RESULT OUT</span>';
+            } else {
+              statusBadge = '<span class="bg-gray-200 text-gray-700 font-bold text-[10px] px-2 py-0.5 rounded border border-gray-300 uppercase">CLOSED</span>';
+            }
+            return `
             <!-- Mobile View (Admin) -->
             <div class="sm:hidden border-b border-gray-100 p-4 space-y-3 relative">
               <div class="flex justify-between items-center">
@@ -504,7 +561,7 @@ Click here to get in
                   </div>
                   <div class="mt-1"><button onclick="editLiveMarket('${m.id}', 'name')" class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️ Edit</button></div>
                 </div>
-                <span class="bg-gray-200 text-gray-600 text-[10px] font-bold px-2 py-1 rounded border border-gray-300 uppercase">${m.status}</span>
+                ${statusBadge}
               </div>
               <div class="flex flex-col space-y-2 text-xs text-gray-600 bg-gray-50 p-3 rounded">
                 <div class="flex justify-between items-center">
@@ -517,16 +574,19 @@ Click here to get in
                 </div>
               </div>
               <div class="flex justify-between items-center px-2">
-                <div class="text-xs font-bold text-gray-500 uppercase">Result:</div>
-                <div class="flex flex-col items-center">
+                <div class="flex space-x-2">
+                  <a href="admin_market_chart.html?marketId=${m.id}" class="text-xs bg-arkGreen text-white px-2 py-1 rounded shadow hover:bg-green-800 uppercase font-bold">List</a>
+                  <button onclick="deleteLiveMarket('${m.id}')" class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded border border-red-300 shadow hover:bg-red-200">🗑️ Delete</button>
+                </div>
+                <div class="flex flex-col items-end">
+                  <div class="text-[10px] font-bold text-gray-500 uppercase">Result:</div>
                   <div class="font-black text-arkGreen text-2xl">${m.result}</div>
                   <div class="mt-1"><button onclick="editLiveMarket('${m.id}', 'result')" class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️ Edit</button></div>
                 </div>
-                <button onclick="deleteLiveMarket('${m.id}')" class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded border border-red-300 shadow hover:bg-red-200">🗑️ Delete</button>
               </div>
             </div>
             <!-- Desktop View (Admin) -->
-            <div class="hidden sm:grid grid-cols-6 gap-4 py-4 px-6 border-b border-gray-100 items-center text-center text-sm hover:bg-gray-50 transition-colors">
+            <div class="hidden sm:grid grid-cols-7 gap-4 py-4 px-6 border-b border-gray-100 items-center text-center text-sm hover:bg-gray-50 transition-colors">
               <div class="col-span-1 text-left flex flex-col justify-center">
                 <div class="font-bold flex items-center space-x-2 text-gray-900">
                   <span>${m.name}</span>
@@ -543,17 +603,21 @@ Click here to get in
                 <div class="mt-1 flex justify-center"><button onclick="editLiveMarket('${m.id}', 'closeTime')" class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️ Edit</button></div>
               </div>
               <div class="flex flex-col justify-center">
+                <a href="admin_market_chart.html?marketId=${m.id}" class="inline-block bg-arkGreen text-white text-[10px] font-bold px-3 py-1 rounded shadow hover:bg-green-800 transition-colors uppercase w-max mx-auto">List</a>
+              </div>
+              <div class="flex flex-col justify-center">
                 <div class="font-bold text-arkGreen text-xl">${m.result}</div>
                 <div class="mt-1 flex justify-center"><button onclick="editLiveMarket('${m.id}', 'result')" class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️ Edit</button></div>
               </div>
               <div class="flex flex-col justify-center">
-                <span class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded border border-gray-300 w-max mx-auto font-medium uppercase">${m.status}</span>
+                ${statusBadge}
               </div>
               <div class="flex flex-col justify-center">
                 <button onclick="deleteLiveMarket('${m.id}')" class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded border border-red-300 shadow hover:bg-red-200 transition-colors">🗑️ Delete</button>
               </div>
             </div>
-          `).join('');
+            `;
+        }).join('');
       }
       
       safeText('weekly-mon', data.weekly?.mon || "-");
@@ -600,11 +664,23 @@ Click here to get in
         updateUI(window.__INITIAL_STATE__);
       }
     } catch(e) { console.error("Initial state error:", e); }
-    
-    fetch((serverUrl ? serverUrl : '') + '/api/state?t=' + new Date().getTime())
-      .then(res => res.json())
-      .then(data => updateUI(data))
-      .catch(err => console.error("Error fetching initial state:", err));
+    // Fetch initial state directly from Supabase
+    if (window.supabaseClient) {
+      window.supabaseClient.from('SiteData').select('*').limit(1).single()
+        .then(({ data, error }) => {
+          if (!error && data) {
+            updateUI(data);
+          } else {
+            console.error("Failed to load initial state from Supabase:", error);
+          }
+        });
+    } else {
+      // Fallback for local development if Supabase client is missing
+      fetch((serverUrl ? serverUrl : '') + '/api/state?t=' + new Date().getTime())
+        .then(res => res.json())
+        .then(data => updateUI(data))
+        .catch(err => console.error("Error fetching initial state:", err));
+    }
   });
 
 
@@ -731,8 +807,9 @@ Click here to get in
       // If it's a settings table, typically there's only 1 row anyway.
       // Make sure we delete any _id from MongoDB so it doesn't break Postgres inserts
       delete toSave._id; 
+      delete toSave.__v;
 
-      window.supabaseClient.from('SiteData').update(toSave).eq('id', _id)
+      window.supabaseClient.from('SiteData').upsert({ ...toSave, id: _id })
         .then(({error}) => { 
            if(error) {
              console.error("Error saving to Supabase:", error); 

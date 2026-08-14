@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Market Chart - Ark Bazar</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+  body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #0a4f3b 0%, #38a169 100%); }
+  .bg-arkGreen { background-color: #0a4f3b; }
+  .text-arkGreen { color: #0a4f3b; }
+  .border-arkGreen { border-color: #0a4f3b; }
+  .bg-arkYellow { background-color: #fca311; }
+  .text-arkYellow { color: #fca311; }
+  .bg-arkTeal { background-color: #118ab2; }
+  .bg-arkDarkGrey { background-color: #333333; }
+  
+  /* Grid styling for chart */
+  .chart-table th, .chart-table td {
+    border: 1px solid #d1d5db;
+    text-align: center;
+    padding: 0.25rem;
+    font-size: 0.75rem;
+  }
+  .chart-table th {
+    background-color: #2563eb; /* Blue header as requested */
+    color: white;
+    font-weight: bold;
+  }
+  .chart-table td:first-child {
+    background-color: #118ab2;
+    color: white;
+    font-weight: bold;
+  }
+  .chart-table tr:nth-child(even) td:not(:first-child) {
+    background-color: #f9fafb;
+  }
+  .chart-table tr:nth-child(odd) td:not(:first-child) {
+    background-color: #ffffff;
+  }
+  .editable-cell:hover {
+    background-color: #fef08a !important;
+    cursor: pointer;
+  }
+  
+  /* Custom scrollbar for table container */
+  .table-container::-webkit-scrollbar { height: 8px; }
+  .table-container::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+  .table-container::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
+  .table-container::-webkit-scrollbar-thumb:hover { background: #555; }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+</head>
+<body class="text-gray-800 antialiased min-h-screen pb-12">
+<header class="bg-arkGreen text-white shadow-md sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <div class="flex-shrink-0">
+        <a class="text-2xl font-bold tracking-tight" href="index.html">Ark Bazar</a>
+      </div>
+      <div class="flex items-center">
+        <a href="javascript:history.back()" class="text-white hover:text-arkYellow flex items-center space-x-2 font-medium">
+          <i class="fa-solid fa-arrow-left"></i>
+          <span>Back</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-7xl mx-auto px-2 sm:px-4 mt-8">
+  <div class="bg-white rounded-lg shadow-xl overflow-hidden">
+    <!-- Header Area -->
+    <div class="bg-arkYellow px-6 py-4 flex flex-col sm:flex-row justify-between items-center border-b-4 border-arkGreen">
+      <h1 id="market-title" class="text-2xl font-black text-gray-900 mb-4 sm:mb-0 uppercase tracking-wide">Market Chart</h1>
+      
+      <div class="flex items-center space-x-2 sm:space-x-4">
+        <div class="flex items-center space-x-2 bg-white px-3 py-2 rounded-lg shadow-sm">
+          <label for="market-select" class="font-bold text-gray-700 text-sm hidden sm:block">Market:</label>
+          <select id="market-select" class="font-bold text-arkGreen focus:outline-none focus:ring-2 focus:ring-arkGreen rounded bg-gray-50 border border-gray-300 px-2 py-1 text-sm sm:text-base max-w-[150px] sm:max-w-xs">
+            <!-- Populated dynamically -->
+          </select>
+        </div>
+        <div class="flex items-center space-x-2 bg-white px-3 py-2 rounded-lg shadow-sm">
+          <label for="year-select" class="font-bold text-gray-700 text-sm hidden sm:block">Year:</label>
+          <select id="year-select" class="font-bold text-arkGreen focus:outline-none focus:ring-2 focus:ring-arkGreen rounded bg-gray-50 border border-gray-300 px-2 py-1 text-sm sm:text-base">
+            <!-- Populated dynamically -->
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart Grid Container -->
+    <div class="p-2 sm:p-6 bg-gray-50">
+      <div class="table-container overflow-x-auto w-full border border-gray-300 rounded-lg shadow-inner bg-white">
+        <table class="chart-table w-full border-collapse min-w-[800px]" id="result-chart">
+          <thead>
+            <tr id="chart-header">
+              <!-- Rendered via JS -->
+            </tr>
+          </thead>
+          <tbody id="chart-body">
+            <!-- Rendered via JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  // Get market ID from URL
+  const urlParams = new URLSearchParams(window.location.search);
+  let marketId = urlParams.get('marketId');
+  let currentMarket = null;
+  
+  // State
+  window.appState = null;
+  let currentYear = new Date().getFullYear().toString();
+  const serverUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:') ? 'https://ankbazar.onrender.com' : '';
+
+  // Generate Year Options (e.g. 2021 to Current + 1)
+  const yearSelect = document.getElementById('year-select');
+  const thisYear = new Date().getFullYear();
+  for (let y = 2021; y <= thisYear + 1; y++) {
+    const opt = document.createElement('option');
+    opt.value = y.toString();
+    opt.innerText = y.toString();
+    if (y.toString() === currentYear) opt.selected = true;
+    yearSelect.appendChild(opt);
+  }
+
+  yearSelect.addEventListener('change', (e) => {
+    currentYear = e.target.value;
+    renderGrid();
+  });
+  
+  const marketSelect = document.getElementById('market-select');
+  marketSelect.addEventListener('change', (e) => {
+    const newMarketId = e.target.value;
+    const url = new URL(window.location);
+    url.searchParams.set('marketId', newMarketId);
+    window.history.pushState({}, '', url);
+    marketId = newMarketId;
+    updateUI(window.appState);
+  });
+
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+  function updateUI(data) {
+    if (!data) return;
+    window.appState = data;
+    
+    if (data.liveMarkets) {
+      marketSelect.innerHTML = '';
+      data.liveMarkets.forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m.id;
+        opt.innerText = m.name;
+        if (String(m.id) === String(marketId)) opt.selected = true;
+        marketSelect.appendChild(opt);
+      });
+      
+      // If no marketId in URL, default to first available
+      if (!marketId && data.liveMarkets.length > 0) {
+         marketId = data.liveMarkets[0].id;
+         const url = new URL(window.location);
+         url.searchParams.set('marketId', marketId);
+         window.history.replaceState({}, '', url);
+      }
+
+      currentMarket = data.liveMarkets.find(m => String(m.id) === String(marketId));
+      if (currentMarket) {
+        document.getElementById('market-title').innerText = currentMarket.name + " Chart";
+      } else {
+        document.getElementById('market-title').innerText = "Market Not Found";
+      }
+    }
+
+    renderGrid();
+  }
+
+  function renderGrid() {
+    if (!window.appState) return;
+
+    // Build Header
+    const headerRow = document.getElementById('chart-header');
+    let headerHTML = '<th>MONTH \\ DATE</th>';
+    for (let i = 1; i <= 31; i++) {
+      headerHTML += `<th>${String(i).padStart(2, '0')}</th>`;
+    }
+    headerRow.innerHTML = headerHTML;
+
+    // Ensure history object exists
+    if (!window.appState.marketHistory) window.appState.marketHistory = {};
+    if (!window.appState.marketHistory[marketId]) window.appState.marketHistory[marketId] = {};
+    if (!window.appState.marketHistory[marketId][currentYear]) window.appState.marketHistory[marketId][currentYear] = {};
+    
+    const yearData = window.appState.marketHistory[marketId][currentYear];
+
+    // Build Body
+    const tbody = document.getElementById('chart-body');
+    let tbodyHTML = '';
+
+    for (let m = 0; m < 12; m++) {
+      let rowHTML = `<tr><td>${months[m]}</td>`;
+      const monthStr = String(m + 1).padStart(2, '0');
+      
+      // Ensure month object exists in data
+      if (!yearData[monthStr]) yearData[monthStr] = {};
+
+      for (let d = 1; d <= 31; d++) {
+        const dayStr = String(d).padStart(2, '0');
+        const val = yearData[monthStr][dayStr] || '-';
+        
+        let cellClass = 'font-bold text-gray-700';
+        
+        rowHTML += `<td class="${cellClass}">${val}</td>`;
+      }
+      rowHTML += `</tr>`;
+      tbodyHTML += rowHTML;
+    }
+    tbody.innerHTML = tbodyHTML;
+  }
+
+  // Subscribe to Supabase
+  if (window.supabaseClient) {
+    window.supabaseClient.channel('custom-all-channel')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'SiteData' }, payload => {
+        updateUI(payload.new);
+      })
+      .subscribe();
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // Try fetching from Express API first to mirror code.html behavior
+    if (window.supabaseClient) {
+      window.supabaseClient.from('SiteData').select('*').limit(1).single()
+        .then(({ data, error }) => {
+          if (!error && data) {
+            updateUI(data);
+          } else {
+            console.error("Failed to load initial state from Supabase:", error);
+          }
+        });
+    } else {
+      fetch((serverUrl ? serverUrl : '') + '/api/state?t=' + new Date().getTime())
+        .then(res => res.json())
+        .then(data => updateUI(data))
+        .catch(err => console.error("Error fetching initial state:", err));
+    }
+  });
+</script>
+</body>
+</html>

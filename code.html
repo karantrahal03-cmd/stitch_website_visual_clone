@@ -106,7 +106,7 @@
 <!-- BEGIN: Today's Result -->
 <section id="today-result" class="bg-white rounded-lg shadow-card overflow-hidden hover-lift">
 <div class="bg-arkTeal px-6 py-4">
-<h2 class="text-lg font-bold text-white text-center">Ark Bazar Result of August 04, 2026 &amp; August 03, 2026</h2>
+<h2 class="text-lg font-bold text-white text-center">Ark Bazar Result</h2>
 </div>
 <div class="bg-arkDarkGrey px-4 sm:px-6 py-3 grid grid-cols-12 gap-2 text-white items-center text-center sm:text-left border-b border-gray-700">
 <div class="col-span-12 sm:col-span-6 font-bold text-sm sm:text-base text-center sm:text-left mb-2 sm:mb-0">Regional Offline Draw Results</div>
@@ -145,10 +145,11 @@ Click here to get in
 </div>
 <div class="overflow-x-auto w-full">
   <div class="w-full min-w-[600px]">
-    <div class="grid bg-arkYellow px-6 py-3 grid-cols-6 gap-4 text-sm font-bold text-gray-900 text-center">
+    <div class="hidden sm:grid bg-arkYellow px-6 py-3 grid-cols-7 gap-4 text-sm font-semibold text-gray-800 text-center">
       <div class="col-span-1 text-left">Market Name</div>
       <div class="">Open Time</div>
       <div class="">Close Time</div>
+      <div class="">Chart</div>
       <div class="">Result</div>
       <div class="">Status</div>
       <div class="">To Get</div>
@@ -263,7 +264,7 @@ Click here to get in
 </div>
 <div>
 <div class="text-[10px] font-bold text-gray-500 tracking-wider uppercase mb-0.5">Email Us</div>
-<a class="text-gray-900 font-bold hover:text-arkGreen text-sm" href="mailto:contact@arkbazar.in">contact@arkbazar.in</a>
+<a class="text-gray-900 font-bold hover:text-arkGreen text-sm" href="mailto:contact@ankbazar.in">contact@ankbazar.in</a>
 </div>
 </div>
 <!-- Instagram Card -->
@@ -273,7 +274,7 @@ Click here to get in
 </div>
 <div>
 <div class="text-[10px] font-bold text-gray-500 tracking-wider uppercase mb-0.5">Follow Us</div>
-<a class="text-gray-900 font-bold hover:text-arkYellow text-sm" href="#">@arkbazar on Instagram</a>
+<a class="text-gray-900 font-bold hover:text-arkYellow text-sm" href="#">@ankbazar on Instagram</a>
 </div>
 </div>
 </div>
@@ -373,6 +374,29 @@ Click here to get in
   function updateUI(data) {
     try {
       if (!data) return;
+      
+      // Auto-reset logic at midnight
+      const todayStr = new Date().toDateString();
+      if (data.lastResetDate !== todayStr) {
+        if (data.lastResetDate) {
+           if (data.mainTodayResult && data.mainTodayResult !== "-") {
+               data.mainResult = data.mainTodayResult;
+           }
+        }
+        data.mainTodayResult = "-";
+        if (data.liveMarkets) {
+           data.liveMarkets.forEach(m => m.result = "-");
+        }
+        data.lastResetDate = todayStr;
+        
+        if (window.supabaseClient) {
+          const toSave = { ...data };
+          delete toSave._id;
+          delete toSave.__v;
+          window.supabaseClient.from('SiteData').upsert({ ...toSave, id: 1 }).then(() => {});
+        }
+      }
+
       const safeText = (id, txt) => {
         const el = document.getElementById(id);
         if (el) el.innerText = String(txt || "-");
@@ -382,25 +406,62 @@ Click here to get in
       else safeText('main-result', data.mainResult || "-");
       safeText('main-today-result', data.mainTodayResult || "-");
       
+      function getMarketStatus(m) {
+        if (m.result && m.result !== "-" && m.result !== "--") return "RESULT OUT";
+        const now = new Date();
+        const parseT = (str) => {
+          if (!str) return null;
+          const parts = str.trim().split(/\s+/);
+          if (parts.length < 2) return null;
+          let [h, mins] = parts[0].split(':').map(Number);
+          const ampm = parts[1].toUpperCase();
+          if (ampm === 'PM' && h < 12) h += 12;
+          if (ampm === 'AM' && h === 12) h = 0;
+          const d = new Date(now);
+          d.setHours(h, mins, 0, 0);
+          return d;
+        };
+        const op = parseT(m.openTime);
+        const cl = parseT(m.closeTime);
+        if (!op || !cl) return "CLOSED";
+        if (now < op) return "CLOSED";
+        if (now >= op && now < cl) return "LIVE";
+        return "RESULT OUT";
+      }
+      
       const liveContainer = document.getElementById('live-markets-container');
       if (liveContainer) {
-        liveContainer.innerHTML = (data.liveMarkets || []).map(m => `
-            <div class="grid grid-cols-6 gap-4 py-4 px-6 border-b border-gray-100 items-center text-center text-sm hover:bg-gray-50 transition-colors">
+        liveContainer.innerHTML = (data.liveMarkets || []).map(m => {
+            const dynamicStatus = getMarketStatus(m);
+            let statusBadge = '';
+            if (dynamicStatus === 'LIVE') {
+              statusBadge = '<span class="bg-red-100 text-red-600 font-bold text-[10px] px-2 py-0.5 rounded border border-red-300 animate-pulse uppercase">LIVE</span>';
+            } else if (dynamicStatus === 'RESULT OUT') {
+              statusBadge = '<span class="bg-green-100 text-green-700 font-bold text-[10px] px-2 py-0.5 rounded border border-green-300 uppercase">RESULT OUT</span>';
+            } else {
+              statusBadge = '<span class="bg-gray-200 text-gray-700 font-bold text-[10px] px-2 py-0.5 rounded border border-gray-300 uppercase">CLOSED</span>';
+            }
+            return `
+            <div class="grid grid-cols-7 gap-4 py-4 px-6 border-b border-gray-100 items-center text-center text-sm hover:bg-gray-50 transition-colors">
               <div class="col-span-1 font-bold text-left flex items-center space-x-2 text-gray-900">
                 <span>${m.name}</span>
                 <i class="fa-solid fa-star text-arkYellow text-xs"></i>
               </div>
               <div class="text-gray-700">${m.openTime}</div>
               <div class="text-gray-700">${m.closeTime}</div>
+              <div>
+                <a href="market_chart.html?marketId=${m.id}" class="inline-block bg-arkGreen text-white text-[10px] font-bold px-3 py-1 rounded shadow hover:bg-green-800 transition-colors uppercase">List</a>
+              </div>
               <div class="font-bold text-arkGreen text-xl">${m.result}</div>
               <div>
-                <span class="bg-gray-200 text-gray-700 text-[10px] px-2 py-1 rounded border border-gray-300 font-bold uppercase">${m.status}</span>
+                ${statusBadge}
               </div>
               <div>
                 <button class="text-arkTeal hover:text-green-700 transition-colors"><i class="fa-regular fa-message text-lg"></i></button>
               </div>
             </div>
-          `).join('');
+            `;
+        }).join('');
       }
       
       safeText('weekly-mon', data.weekly?.mon || "-");
@@ -446,11 +507,23 @@ Click here to get in
         updateUI(window.__INITIAL_STATE__);
       }
     } catch(e) { console.error("Initial state error:", e); }
-    
-    fetch((serverUrl ? serverUrl : '') + '/api/state?t=' + new Date().getTime())
-      .then(res => res.json())
-      .then(data => updateUI(data))
-      .catch(err => console.error("Error fetching initial state:", err));
+    // Fetch initial state directly from Supabase
+    if (window.supabaseClient) {
+      window.supabaseClient.from('SiteData').select('*').limit(1).single()
+        .then(({ data, error }) => {
+          if (!error && data) {
+            updateUI(data);
+          } else {
+            console.error("Failed to load initial state from Supabase:", error);
+          }
+        });
+    } else {
+      // Fallback for local development if Supabase client is missing
+      fetch((serverUrl ? serverUrl : '') + '/api/state?t=' + new Date().getTime())
+        .then(res => res.json())
+        .then(data => updateUI(data))
+        .catch(err => console.error("Error fetching initial state:", err));
+    }
   });
 
 
