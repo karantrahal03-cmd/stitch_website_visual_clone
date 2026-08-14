@@ -291,7 +291,8 @@ Click here to get in
   </div>
 </footer>
 
-<script src="https://cdn.socket.io/4.7.2/socket.io.min.js?v=2.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
 <script>
   // Tab logic
   document.addEventListener("DOMContentLoaded", () => {
@@ -328,8 +329,15 @@ Click here to get in
 
   // Data fetching logic
   const serverUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:') ? 'https://ankbazar.onrender.com' : '';
-  const socket = io(serverUrl || undefined, { transports: ["websocket", "polling"] });
-  socket.on('connect', () => { socket.emit('request_initial_state'); });
+  
+  if (window.supabaseClient) {
+    window.supabaseClient.channel('custom-all-channel')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'SiteData' }, payload => {
+        updateUI(payload.new);
+      })
+      .subscribe();
+  }
+
   window.fullChartHistory = [];
   
   function renderChartHistory(items) {
@@ -445,9 +453,7 @@ Click here to get in
       .catch(err => console.error("Error fetching initial state:", err));
   });
 
-  socket.on('site_data_updated', (data) => {
-    updateUI(data);
-  });
+
 </script>
 </body>
 </html>

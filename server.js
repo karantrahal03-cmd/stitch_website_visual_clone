@@ -1,6 +1,5 @@
 const express = require('express');
 const http = require('http');
-const { Server } = require('socket.io');
 const path = require('path');
 const fs = require('fs');
 const mongoose = require('mongoose');
@@ -14,8 +13,6 @@ const app = express();
 const cors = require('cors');
 app.use(cors({ origin: '*' }));
 const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: "*" } });
-
 const DATA_FILE = path.join(__dirname, 'data.json');
 
 const defaultState = { 
@@ -203,63 +200,6 @@ function calculateHotNumbers() {
 
 calculateHotNumbers();
 
-io.on('connection', (socket) => {
-  socket.emit('site_data_updated', appState);
-
-  socket.on('request_initial_state', () => {
-    socket.emit('site_data_updated', appState);
-  });
-
-  socket.on('update_site_data', async (payload) => {
-    if (payload.type === 'field') {
-      appState[payload.field] = payload.value;
-      if (payload.field === 'mainResult' || payload.field === 'mainTodayResult') {
-        const now = new Date();
-        const formatter = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Kolkata', day: '2-digit', month: '2-digit', year: 'numeric' });
-        const parts = formatter.formatToParts(now);
-        const day = parts.find(p => p.type === 'day').value;
-        const month = parts.find(p => p.type === 'month').value;
-        const year = parts.find(p => p.type === 'year').value;
-        const dateStr = `${day}-${month}-${year}`;
-
-        const existing = appState.chartHistory.find(x => x.date === dateStr);
-        if (existing) {
-          existing.result = payload.value;
-        } else {
-          appState.chartHistory.unshift({ id: Date.now().toString(), date: dateStr, result: payload.value });
-        }
-      }
-    } else if (payload.type === 'nested') {
-      if (appState[payload.parent]) appState[payload.parent][payload.field] = payload.value;
-    } else if (payload.type === 'array_edit') {
-      appState[payload.target][payload.index] = payload.value;
-    } else if (payload.type === 'array_delete') {
-      appState[payload.target].splice(payload.index, 1);
-    } else if (payload.type === 'array_add') {
-      appState[payload.target].push(payload.value);
-    } else if (payload.type === 'history_edit') {
-      const item = appState.chartHistory.find(x => x.id === payload.id);
-      if (item) item[payload.field] = payload.value;
-    } else if (payload.type === 'history_delete') {
-      appState.chartHistory = appState.chartHistory.filter(x => x.id !== payload.id);
-    } else if (payload.type === 'history_add') {
-      appState.chartHistory.unshift({ id: Date.now().toString(), date: payload.date, result: payload.result });
-    } else if (payload.type === 'market_add') {
-      appState.liveMarkets.push({ id: Date.now().toString(), name: "New Market", openTime: "09:00 AM", closeTime: "07:00 PM", result: "-", status: "CLOSED" });
-    } else if (payload.type === 'market_delete') {
-      appState.liveMarkets = appState.liveMarkets.filter(m => m.id !== payload.id);
-    } else if (payload.type === 'market_edit') {
-      const m = appState.liveMarkets.find(m => m.id === payload.id);
-      if (m) m[payload.field] = payload.value;
-    }
-
-    calculateHotNumbers();
-    await SiteData.findOneAndUpdate({}, appState, { upsert: true, new: true, strict: false })
-      .catch(err => console.error("Error saving state to MongoDB:", err));
-    io.emit('site_data_updated', appState);
-  });
-
-});
 
 function updateLiveStatus() {
   try {
@@ -323,7 +263,6 @@ function updateLiveStatus() {
     if (stateChanged) {
       SiteData.findOneAndUpdate({}, appState, { upsert: true, new: true, overwrite: true })
         .catch(err => console.error("Error saving state to MongoDB on live status update:", err));
-      io.emit('site_data_updated', appState);
     }
   } catch (e) {
     console.error("Error updating live status:", e);
@@ -333,6 +272,10 @@ setInterval(updateLiveStatus, 60000);
 updateLiveStatus();
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+if (require.main === module) {
+  server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
+
+module.exports = app;
