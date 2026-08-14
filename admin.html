@@ -491,6 +491,7 @@ Click here to get in
       else safeText('main-result', data.mainResult || "-");
       safeText('main-today-result', data.mainTodayResult || "-");
       
+      const liveContainer = document.getElementById('live-markets-container');
       if (liveContainer) {
         liveContainer.innerHTML = (data.liveMarkets || []).map(m => `
             <!-- Mobile View (Admin) -->
