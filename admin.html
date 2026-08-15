@@ -661,33 +661,33 @@
               </div>
             </div>
             <!-- Desktop View (Admin) -->
-            <div class="hidden sm:grid grid-cols-6 gap-4 py-4 px-6 border-b border-gray-100 items-center text-center text-sm hover:bg-gray-50 transition-colors">
-              <div class="col-span-1 text-left flex flex-col justify-center">
+            <div class="hidden sm:grid grid-cols-7 gap-4 py-4 px-6 border-b border-gray-100 items-center text-center text-sm hover:bg-gray-50 transition-colors">
+              <div class="col-span-1 text-left flex flex-col items-start justify-center">
                 <div class="font-bold flex items-center space-x-2 text-gray-900">
                   <span>${m.marketName || m.name}</span>
                   <i class="fa-solid fa-star text-arkYellow text-xs"></i>
                 </div>
                 <div class="mt-1"><button onclick="editLiveMarket('${m.id}', 'marketName')" class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️ Edit</button></div>
               </div>
-              <div class="flex flex-col justify-center text-gray-700">
+              <div class="flex flex-col items-center justify-center text-gray-700">
                 <div>${m.openTime}</div>
                 <div class="mt-1 flex justify-center"><button onclick="editLiveMarket('${m.id}', 'openTime')" class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️ Edit</button></div>
               </div>
-              <div class="flex flex-col justify-center text-gray-700">
+              <div class="flex flex-col items-center justify-center text-gray-700">
                 <div>${m.closeTime}</div>
                 <div class="mt-1 flex justify-center"><button onclick="editLiveMarket('${m.id}', 'closeTime')" class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️ Edit</button></div>
               </div>
-              <div class="flex flex-col justify-center">
+              <div class="flex flex-col items-center justify-center">
                 <a href="admin_market_chart.html?marketId=${m.id}" class="inline-block bg-arkGreen text-white text-[10px] font-bold px-3 py-1 rounded shadow hover:bg-green-800 transition-colors uppercase w-max mx-auto">List</a>
               </div>
-              <div class="flex flex-col justify-center">
+              <div class="flex flex-col items-center justify-center">
                 <div class="font-bold text-arkGreen text-xl">${m.result}</div>
                 <div class="mt-1 flex justify-center"><button onclick="editLiveMarket('${m.id}', 'result')" class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️ Edit</button></div>
               </div>
-              <div class="flex flex-col justify-center">
+              <div class="flex flex-col items-center justify-center">
                 ${statusBadge}
               </div>
-              <div class="flex flex-col justify-center">
+              <div class="flex flex-col items-center justify-center">
                 <button onclick="deleteLiveMarket('${m.id}')" class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded border border-red-300 shadow hover:bg-red-200 transition-colors">🗑️ Delete</button>
               </div>
             </div>
