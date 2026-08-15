@@ -242,11 +242,9 @@
             <div class="">To Get</div>
           </div>
           <div id="live-markets-container" class="border-t border-gray-200 bg-white"></div>
-          <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-center gap-4">
+          <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
             <button id="add-market-btn"
-              class="text-sm bg-arkGreen text-white px-4 py-2 rounded shadow">➕ Add Market</button>
-            <button id="save-markets-btn"
-              class="text-sm bg-blue-600 text-white px-4 py-2 rounded shadow hidden">💾 Save Markets</button>
+              class="text-sm bg-arkGreen text-white px-4 py-2 rounded shadow block mx-auto">➕ Add Market</button>
           </div>
         </div>
       </div>
@@ -864,6 +862,9 @@
         window.appState.chartHistory = window.appState.chartHistory.filter(x => x.id !== payload.id);
       } else if (payload.type === 'history_add') {
         window.appState.chartHistory.unshift({ id: Date.now().toString(), date: payload.date, result: payload.result });
+      } else if (payload.type === 'market_add') {
+        if (!Array.isArray(window.appState.liveMarkets)) window.appState.liveMarkets = [];
+        window.appState.liveMarkets.push({ id: Date.now().toString(), marketName: "New Market", openTime: "", closeTime: "", result: "-", status: "CLOSED" });
       } else if (payload.type === 'market_delete') {
         window.appState.liveMarkets = window.appState.liveMarkets.filter(m => m.id !== payload.id);
       } else if (payload.type === 'market_edit') {
@@ -904,105 +905,10 @@
       }
     }
 
-    // New DOM-based Add Market Functions
-    function addLiveMarketRow() {
-      const container = document.getElementById('live-markets-container');
-      if (container.innerText.includes("No live markets available")) {
-        container.innerHTML = "";
-      }
-      
-      const id = "row-" + Date.now();
-      
-      const row = document.createElement('div');
-      row.className = "hidden sm:grid grid-cols-7 gap-4 py-4 px-6 border-b border-gray-100 items-center text-center text-sm market-input-row market-input-row-desktop bg-blue-50";
-      row.setAttribute("data-row-id", id);
-      row.innerHTML = `
-        <div class="col-span-1 text-left"><input type="text" class="border p-1 w-full text-xs market-name-input" placeholder="Market Name"></div>
-        <div><input type="text" class="border p-1 w-full text-xs market-open-input" placeholder="09:00 AM"></div>
-        <div><input type="text" class="border p-1 w-full text-xs market-close-input" placeholder="05:00 PM"></div>
-        <div>-</div>
-        <div><input type="text" class="border p-1 w-full text-xs market-result-input" placeholder="-"></div>
-        <div><input type="text" class="border p-1 w-full text-xs market-status-input" placeholder="CLOSED"></div>
-        <div><button onclick="document.querySelectorAll('[data-row-id=\\'${id}\\']').forEach(e => e.remove()); if(document.querySelectorAll('.market-input-row-desktop').length === 0) document.getElementById('save-markets-btn').classList.add('hidden');" class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded border border-red-300">🗑️ Cancel</button></div>
-      `;
-      
-      // Also add a mobile version of the input row for mobile users
-      const mobileRow = document.createElement('div');
-      mobileRow.className = "sm:hidden border-b border-gray-100 p-4 space-y-3 relative market-input-row market-input-row-mobile bg-blue-50";
-      mobileRow.setAttribute("data-row-id", id);
-      mobileRow.innerHTML = `
-        <div class="flex flex-col space-y-2">
-          <input type="text" class="border p-1 w-full text-xs market-name-input-mobile font-bold" placeholder="Market Name">
-          <input type="text" class="border p-1 w-full text-xs market-open-input-mobile" placeholder="Open: 09:00 AM">
-          <input type="text" class="border p-1 w-full text-xs market-close-input-mobile" placeholder="Close: 05:00 PM">
-          <input type="text" class="border p-1 w-full text-xs market-result-input-mobile" placeholder="Result">
-          <input type="text" class="border p-1 w-full text-xs market-status-input-mobile" placeholder="Status (CLOSED)">
-          <button onclick="document.querySelectorAll('[data-row-id=\\'${id}\\']').forEach(e => e.remove()); if(document.querySelectorAll('.market-input-row-desktop').length === 0) document.getElementById('save-markets-btn').classList.add('hidden');" class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded border border-red-300 w-full mt-2">🗑️ Cancel</button>
-        </div>
-      `;
-      
-      // Sync inputs between desktop and mobile views
-      const syncInputs = (desktopClass, mobileClass) => {
-        const desktopInput = row.querySelector('.' + desktopClass);
-        const mobileInput = mobileRow.querySelector('.' + mobileClass);
-        desktopInput.addEventListener('input', (e) => mobileInput.value = e.target.value);
-        mobileInput.addEventListener('input', (e) => desktopInput.value = e.target.value);
-      };
-      
-      container.appendChild(row);
-      container.appendChild(mobileRow);
-      
-      syncInputs('market-name-input', 'market-name-input-mobile');
-      syncInputs('market-open-input', 'market-open-input-mobile');
-      syncInputs('market-close-input', 'market-close-input-mobile');
-      syncInputs('market-result-input', 'market-result-input-mobile');
-      syncInputs('market-status-input', 'market-status-input-mobile');
-      
-      document.getElementById('save-markets-btn').classList.remove('hidden');
-    }
-
-    function saveAllMarkets() {
-      if (!window.appState) window.appState = { id: 1 };
-      if (!Array.isArray(window.appState.liveMarkets)) window.appState.liveMarkets = [];
-      
-      const inputRows = document.querySelectorAll('.market-input-row-desktop');
-      if (inputRows.length === 0) return;
-      
-      inputRows.forEach(row => {
-        const marketName = row.querySelector('.market-name-input').value.trim();
-        if (marketName) {
-          window.appState.liveMarkets.push({
-            id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
-            marketName: marketName,
-            openTime: row.querySelector('.market-open-input').value.trim() || "",
-            closeTime: row.querySelector('.market-close-input').value.trim() || "",
-            result: row.querySelector('.market-result-input').value.trim() || "-",
-            status: row.querySelector('.market-status-input').value.trim() || "CLOSED"
-          });
-        }
-      });
-      
-      if (window.supabaseClient) {
-        window.supabaseClient.from('SiteData').update({ liveMarkets: window.appState.liveMarkets }).eq('id', window.appState.id || 1)
-          .then(({ error }) => {
-            if (error) {
-              console.error("Error saving new markets:", error);
-              alert("Error saving: " + error.message);
-            } else {
-              updateUI(window.appState);
-              document.getElementById('save-markets-btn').classList.add('hidden');
-            }
-          });
-      }
-    }
-    
     // Attach event listeners safely after DOM loads
     document.addEventListener("DOMContentLoaded", () => {
       const addMarketBtn = document.getElementById('add-market-btn');
-      if (addMarketBtn) addMarketBtn.addEventListener('click', addLiveMarketRow);
-      
-      const saveMarketsBtn = document.getElementById('save-markets-btn');
-      if (saveMarketsBtn) saveMarketsBtn.addEventListener('click', saveAllMarkets);
+      if (addMarketBtn) addMarketBtn.addEventListener('click', addLiveMarket);
     });
   </script>
 </body>
