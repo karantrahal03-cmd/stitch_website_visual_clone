@@ -1,12 +1,15 @@
-<!DOCTYPE html><html lang="en" style="scroll-behavior: smooth;"><head>
-<meta charset="utf-8">
-<meta content="width=device-width, initial-scale=1.0" name="viewport">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
-<title>Admin Dashboard - Ark Bazar</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script>
+<!DOCTYPE html>
+<html lang="en" style="scroll-behavior: smooth;">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Admin Dashboard - Ark Bazar</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script>
     tailwind.config = {
       theme: {
         extend: {
@@ -28,389 +31,458 @@
       }
     }
   </script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-<style data-purpose="custom-styles">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style data-purpose="custom-styles">
     body {
       background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuA3lfBHwP_DyMhkawAzDaHuuZcp1rZ83N6Be0kKg4Z2Xrk8qpmH3R9HsHFmGIl7tMgEJwFjnisbRF6MbXMgiXa8qz-EzspJB4e9grEwwmVtKGged-Yt4WhSlRIrW8Q6nzm18OjSpUGE2QmBTQeOi5loC8A8gq7DccfTiuiSgRk06J6_UPdOmIHSKdYd4iuf1VzRhCFQAN2likjo8LBXufkfzJet_ooEkKXWMi1mvreV_bf_ZfzSmr5rIw);
       background-size: cover;
       background-attachment: fixed;
       background-color: rgb(248, 249, 251);
     }
+
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(15px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(15px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
+
     .fade-in {
       animation: fadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
     }
+
     .hover-lift {
       transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
+
     .hover-lift:hover {
       transform: translateY(-4px);
       box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -5px rgba(0, 0, 0, 0.1);
     }
-.nav-link {
-    border-bottom: 2px solid transparent;
-    transition: border-color 0.3s ease, color 0.3s ease;
+
+    .nav-link {
+      border-bottom: 2px solid transparent;
+      transition: border-color 0.3s ease, color 0.3s ease;
     }
-.nav-link.active {
-    border-bottom: 2px solid white
+
+    .nav-link.active {
+      border-bottom: 2px solid white
     }
-.shadow-card {
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)
+
+    .shadow-card {
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)
     }
-@keyframes marquee {
-    from { transform: translateX(0); }
-    to { transform: translateX(-100%); }
-}
-.animate-marquee {
-    display: inline-block;
-    animation: marquee 25s linear infinite;
-    padding-left: 100%;
-}
-</style>
-<!-- Supabase Auth -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="supabase-config.js"></script>
-<script>
-  // Check auth immediately
-  async function requireAuth() {
-    if (localStorage.getItem('admin_auth') === 'true') return;
-    try {
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      if (!session) {
+
+    @keyframes marquee {
+      from {
+        transform: translateX(0);
+      }
+
+      to {
+        transform: translateX(-100%);
+      }
+    }
+
+    .animate-marquee {
+      display: inline-block;
+      animation: marquee 25s linear infinite;
+      padding-left: 100%;
+    }
+  </style>
+  <!-- Supabase Auth -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script>
+    // Check auth immediately
+    async function requireAuth() {
+      if (localStorage.getItem('admin_auth') === 'true') return;
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session) {
+          window.location.href = 'login.html';
+        }
+      } catch (e) {
         window.location.href = 'login.html';
       }
-    } catch(e) {
-      window.location.href = 'login.html';
     }
-  }
-  requireAuth();
+    requireAuth();
 
-  // Listen to auth changes
-  supabaseClient.auth.onAuthStateChange((event, session) => {
-    if (localStorage.getItem('admin_auth') === 'true') return;
-    if (event === 'SIGNED_OUT' || !session) {
-      window.location.href = 'login.html';
-    }
-  });
-
-  function handleLogout() {
-    localStorage.removeItem('admin_auth');
-    supabaseClient.auth.signOut().finally(() => {
-      window.location.href = 'login.html';
+    // Listen to auth changes
+    supabaseClient.auth.onAuthStateChange((event, session) => {
+      if (localStorage.getItem('admin_auth') === 'true') return;
+      if (event === 'SIGNED_OUT' || !session) {
+        window.location.href = 'login.html';
+      }
     });
-  }
-</script>
+
+    function handleLogout() {
+      localStorage.removeItem('admin_auth');
+      supabaseClient.auth.signOut().finally(() => {
+        window.location.href = 'login.html';
+      });
+    }
+  </script>
 </head>
+
 <body class="text-gray-800 antialiased min-h-screen">
-<!-- BEGIN: MainHeader -->
-<div id="header-wrapper" class="fixed top-0 left-0 w-full z-50 shadow-md flex flex-col">
-  <div class="overflow-hidden bg-[#fbe7e7] border-b border-[#f4c7c3] py-1 whitespace-nowrap w-full">
-    <div class="animate-marquee text-[#d32f2f] text-[9px] sm:text-[10px] font-bold tracking-widest uppercase">
-      THIS WEBSITE IS FOR INFORMATION AND ENTERTAINMENT PURPOSES ONLY, WE DO NOT CONDUCT BETTING OR GAMBLING.
+  <!-- BEGIN: MainHeader -->
+  <div id="header-wrapper" class="fixed top-0 left-0 w-full z-50 shadow-md flex flex-col">
+    <div class="overflow-hidden bg-[#fbe7e7] border-b border-[#f4c7c3] py-1 whitespace-nowrap w-full">
+      <div class="animate-marquee text-[#d32f2f] text-[9px] sm:text-[10px] font-bold tracking-widest uppercase">
+        THIS WEBSITE IS FOR INFORMATION AND ENTERTAINMENT PURPOSES ONLY, WE DO NOT CONDUCT BETTING OR GAMBLING.
+      </div>
     </div>
+    <header class="bg-arkGreen text-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          <!-- Logo -->
+          <div class="flex-shrink-0">
+            <a class="text-2xl font-bold tracking-tight" href="#">Ark Bazar</a>
+          </div>
+          <!-- Navigation -->
+          <nav class="hidden md:flex space-x-8" id="main-nav">
+            <a class="text-white px-3 py-2 text-sm font-medium nav-link active" href="#home">Home</a>
+            <a class="text-gray-200 hover:text-white px-3 py-2 text-sm font-medium nav-link" href="#today-result">Today
+              Result</a>
+            <a class="text-gray-200 hover:text-white px-3 py-2 text-sm font-medium nav-link" href="#charts">Charts</a>
+            <a class="text-gray-200 hover:text-white px-3 py-2 text-sm font-medium nav-link" href="#contact">Contact</a>
+          </nav>
+          <!-- Right Side Actions -->
+          <div class="flex items-center space-x-4">
+            <button class="text-gray-200 hover:text-white focus:outline-none mr-2" onclick="handleLogout()"
+              title="Logout">
+              <i class="fa-solid fa-right-from-bracket text-xl"></i>
+            </button>
+            <button class="text-gray-200 hover:text-white focus:outline-none">
+              <i class="fa-regular fa-bell text-xl"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
   </div>
-<header class="bg-arkGreen text-white">
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-<div class="flex items-center justify-between h-16">
-<!-- Logo -->
-<div class="flex-shrink-0">
-<a class="text-2xl font-bold tracking-tight" href="#">Ark Bazar</a>
-</div>
-<!-- Navigation -->
-<nav class="hidden md:flex space-x-8" id="main-nav">
-<a class="text-white px-3 py-2 text-sm font-medium nav-link active" href="#home">Home</a>
-<a class="text-gray-200 hover:text-white px-3 py-2 text-sm font-medium nav-link" href="#today-result">Today Result</a>
-<a class="text-gray-200 hover:text-white px-3 py-2 text-sm font-medium nav-link" href="#charts">Charts</a>
-<a class="text-gray-200 hover:text-white px-3 py-2 text-sm font-medium nav-link" href="#contact">Contact</a>
-</nav>
-<!-- Right Side Actions -->
-<div class="flex items-center space-x-4">
-<button class="text-gray-200 hover:text-white focus:outline-none mr-2" onclick="handleLogout()" title="Logout">
-<i class="fa-solid fa-right-from-bracket text-xl"></i>
-</button>
-<button class="text-gray-200 hover:text-white focus:outline-none">
-<i class="fa-regular fa-bell text-xl"></i>
-</button>
-</div>
-</div>
-</div>
-</header>
-</div>
-<!-- END: MainHeader -->
-<!-- BEGIN: MainContent -->
-<main id="home" class="max-w-4xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8 pt-24 sm:pt-28 pb-8 sm:pb-12 space-y-6 sm:space-y-8 md:space-y-12 fade-in">
-<div class="bg-red-600 text-white font-bold text-center py-2 rounded mb-4 animate-pulse">ADMINISTRATOR MODE: CLICK "✏️ EDIT" TO UPDATE LIVE SITE</div>
-<!-- BEGIN: Today's Result -->
-<section id="today-result" class="bg-white rounded-lg shadow-card overflow-hidden hover-lift"><div class="bg-arkTeal px-6 py-4">
-<h2 class="text-lg font-semibold text-white text-center">Ark Bazar Result</h2>
-</div>
-<div class="bg-arkDarkGrey px-4 sm:px-6 py-3 grid grid-cols-12 gap-2 text-white items-center text-center sm:text-left border-b border-gray-600">
-<div class="col-span-12 sm:col-span-6 font-bold text-sm sm:text-base text-center sm:text-left mb-2 sm:mb-0">Regional Offline Draw Results</div>
-<div class="col-span-6 sm:col-span-3 text-xs font-bold uppercase tracking-wide text-center">Yesterday Result</div>
-<div class="col-span-6 sm:col-span-3 text-xs font-bold uppercase tracking-wide text-center">Today Result</div>
-</div>
-<div class="bg-arkYellow px-4 sm:px-6 py-4 sm:py-6 grid grid-cols-12 gap-2 items-center">
-<div class="col-span-12 sm:col-span-6 text-center sm:text-left mb-4 sm:mb-0 space-y-1">
-<h3 class="text-2xl sm:text-3xl font-black text-gray-900">ARK BAZAR</h3>
-<div class="flex items-center justify-center sm:justify-start space-x-2 text-xs font-medium text-gray-700">
-<div><span id="main-result-time">at 03:00 PM</span><div class="mt-1 flex justify-center"><button onclick="editField('mainResultTime', 'field')" class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️ Edit</button></div></div><a class="text-arkGreen font-bold underline" href="#">Record Chart</a>
-</div>
-</div>
-<div class="col-span-6 sm:col-span-3 text-center">
-<div id="main-result" class="text-4xl sm:text-5xl font-black text-gray-800"><span id="main-result-display">--</span></div>
-<div class="mt-1 flex justify-center"><button onclick="editField('mainResult', 'field')" class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️ Edit</button></div>
-</div>
-<div class="col-span-6 sm:col-span-3 text-center">
-<div id="main-today-result" class="text-4xl sm:text-5xl font-black text-gray-800">-</div>
-<div class="mt-1 flex justify-center"><button onclick="editField('mainTodayResult', 'field')" class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️ Edit</button></div>
-</div>
-</div>
+  <!-- END: MainHeader -->
+  <!-- BEGIN: MainContent -->
+  <main id="home"
+    class="max-w-4xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8 pt-24 sm:pt-28 pb-8 sm:pb-12 space-y-6 sm:space-y-8 md:space-y-12 fade-in">
+    <div class="bg-red-600 text-white font-bold text-center py-2 rounded mb-4 animate-pulse">ADMINISTRATOR MODE: CLICK
+      "✏️ EDIT" TO UPDATE LIVE SITE</div>
+    <!-- BEGIN: Today's Result -->
+    <section id="today-result" class="bg-white rounded-lg shadow-card overflow-hidden hover-lift">
+      <div class="bg-arkTeal px-6 py-4">
+        <h2 class="text-lg font-semibold text-white text-center">Ark Bazar Result</h2>
+      </div>
+      <div
+        class="bg-arkDarkGrey px-4 sm:px-6 py-3 grid grid-cols-12 gap-2 text-white items-center text-center sm:text-left border-b border-gray-600">
+        <div class="col-span-12 sm:col-span-6 font-bold text-sm sm:text-base text-center sm:text-left mb-2 sm:mb-0">
+          Regional Offline Draw Results</div>
+        <div class="col-span-6 sm:col-span-3 text-xs font-bold uppercase tracking-wide text-center">Yesterday Result
+        </div>
+        <div class="col-span-6 sm:col-span-3 text-xs font-bold uppercase tracking-wide text-center">Today Result</div>
+      </div>
+      <div class="bg-arkYellow px-4 sm:px-6 py-4 sm:py-6 grid grid-cols-12 gap-2 items-center">
+        <div class="col-span-12 sm:col-span-6 text-center sm:text-left mb-4 sm:mb-0 space-y-1">
+          <h3 class="text-2xl sm:text-3xl font-black text-gray-900">ARK BAZAR</h3>
+          <div class="flex items-center justify-center sm:justify-start space-x-2 text-xs font-medium text-gray-700">
+            <div><span id="main-result-time">at 03:00 PM</span>
+              <div class="mt-1 flex justify-center"><button onclick="editField('mainResultTime', 'field')"
+                  class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️
+                  Edit</button></div>
+            </div><a class="text-arkGreen font-bold underline" href="#">Record Chart</a>
+          </div>
+        </div>
+        <div class="col-span-6 sm:col-span-3 text-center">
+          <div id="main-result" class="text-4xl sm:text-5xl font-black text-gray-800"><span
+              id="main-result-display">--</span></div>
+          <div class="mt-1 flex justify-center"><button onclick="editField('mainResult', 'field')"
+              class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️
+              Edit</button></div>
+        </div>
+        <div class="col-span-6 sm:col-span-3 text-center">
+          <div id="main-today-result" class="text-4xl sm:text-5xl font-black text-gray-800">-</div>
+          <div class="mt-1 flex justify-center"><button onclick="editField('mainTodayResult', 'field')"
+              class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️
+              Edit</button></div>
+        </div>
+      </div>
 
-<button class="w-full bg-arkDarkGrey text-white py-4 font-bold text-sm hover:bg-gray-800 transition-colors">
-Click here to get in
-</button></section>
-<!-- END: Today's Result -->
-<!-- BEGIN: Yesterday's Results -->
+      <button class="w-full bg-arkDarkGrey text-white py-4 font-bold text-sm hover:bg-gray-800 transition-colors">
+        Click here to get in
+      </button>
+    </section>
+    <!-- END: Today's Result -->
+    <!-- BEGIN: Yesterday's Results -->
 
-<!-- END: Yesterday's Results -->
-<!-- BEGIN: Live Market Board -->
+    <!-- END: Yesterday's Results -->
+    <!-- BEGIN: Live Market Board -->
 
-<section class="bg-white rounded-lg shadow-card overflow-hidden hover-lift">
-<div class="bg-arkTeal px-6 py-4 flex justify-center items-center">
-<h2 class="text-lg font-semibold text-gray-900 mr-4">Live Market Board</h2>
-<span class="bg-arkYellow text-xs font-bold px-2 py-1 rounded-full flex items-center">
-<span class="w-2 h-2 bg-green-600 rounded-full mr-1 animate-pulse"></span>
+    <section class="bg-white rounded-lg shadow-card overflow-hidden hover-lift">
+      <div class="bg-arkTeal px-6 py-4 flex justify-center items-center">
+        <h2 class="text-lg font-semibold text-gray-900 mr-4">Live Market Board</h2>
+        <span class="bg-arkYellow text-xs font-bold px-2 py-1 rounded-full flex items-center">
+          <span class="w-2 h-2 bg-green-600 rounded-full mr-1 animate-pulse"></span>
           AUTO-UPDATING
         </span>
-</div>
-<div class="overflow-x-auto w-full">
-  <div class="w-full">
-    <div class="hidden sm:grid bg-arkYellow px-6 py-3 grid-cols-7 gap-4 text-sm font-semibold text-gray-800 text-center">
-      <div class="col-span-1 text-left">Market Name</div>
-      <div class="">Open Time</div>
-      <div class="">Close Time</div>
-      <div class="">Chart</div>
-      <div class="">Result</div>
-      <div class="">Status</div>
-      <div class="">To Get</div>
-    </div>
-    <div id="live-markets-container" class="border-t border-gray-200 bg-white"></div>
-    <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
-      <button onclick="addLiveMarket()" class="text-sm bg-arkGreen text-white px-4 py-2 rounded shadow block mx-auto">➕ Add Market</button>
-    </div>
-  </div>
-</div>
-</div>
-</section>
-<!-- END: Live Market Board -->
-<!-- BEGIN: Result Chart Section -->
-<section id="charts" class="bg-white rounded-lg shadow-card overflow-hidden hover-lift">
-<div class="bg-arkTeal px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-<h2 class="text-lg font-semibold text-gray-900">Ark Bazar Result Chart</h2>
-<div class="flex flex-col sm:flex-row items-stretch sm:items-center w-full sm:w-auto gap-2 sm:gap-4 mt-4 sm:mt-0">
-<div class="relative w-full sm:w-auto">
-<input id="chart-date-input" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-arkGreen focus:border-arkGreen sm:text-sm rounded-md" placeholder="dd-mm-yyyy" type="date">
-</div>
-<div class="flex space-x-2">
-<button id="chart-search-btn" class="flex-1 sm:flex-none bg-arkGreen text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-800 shadow">Search</button>
-<button id="chart-clear-btn" class="flex-1 sm:flex-none bg-gray-100 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-200 border border-gray-300">Clear</button>
-</div>
-</div>
-</div>
-<div class="p-6">
-<div class="bg-arkYellow rounded-md overflow-hidden flex items-center justify-between px-6 py-3 mb-2">
-<div class="font-semibold text-gray-800 flex-1 text-center border-r border-yellow-500">DATE</div>
-<div class="font-semibold text-gray-800 flex-1 text-center">ARK BAZAR</div>
-</div>
-<div id="chart-history-container" class="space-y-2"></div>
-<button onclick="addHistoryRow()" class="mt-4 text-sm bg-arkGreen text-white px-4 py-2 rounded shadow block mx-auto">➕ Add History Row</button>
-</div>
-</section>
-<!-- END: Result Chart Section -->
-<!-- BEGIN: Market Analysis -->
-<section class="bg-white rounded-lg shadow-card p-4 sm:p-6 md:p-8">
-<h2 class="text-2xl font-bold text-gray-900 text-center mb-6">Market Analysis</h2>
-<!-- Tabs -->
-<div class="border-b border-gray-200 mb-6 flex justify-center space-x-8">
-<button id="tab-weekly" class="text-arkGreen font-semibold py-2 border-b-2 border-arkGreen">Weekly Grid</button>
-<button id="tab-hot" class="text-gray-500 hover:text-gray-700 py-2 border-b-2 border-transparent">Hot Numbers</button>
-</div>
-<!-- Weekly Grid -->
-<div id="content-weekly" class="flex justify-between space-x-2 overflow-x-auto pb-2">
-<!-- Monday -->
-<div class="bg-gray-50 border border-gray-200 rounded-md p-4 text-center min-w-[80px] flex-1">
-<div class="text-xs font-semibold text-gray-600 mb-2">MON</div>
-<div id="weekly-mon" class="text-arkGreen font-bold">---</div>
-<div class="mt-1 flex justify-center"><button onclick="editNested('weekly', 'mon')" class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️ Edit</button></div>
-</div>
-<!-- Tuesday -->
-<div class="bg-gray-50 border border-gray-200 rounded-md p-4 text-center min-w-[80px] flex-1">
-<div class="text-xs font-semibold text-gray-600 mb-2">TUE</div>
-<div id="weekly-tue" class="text-arkGreen font-bold">---</div>
-<div class="mt-1 flex justify-center"><button onclick="editNested('weekly', 'tue')" class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️ Edit</button></div>
-</div>
-<!-- Wednesday -->
-<div class="bg-gray-50 border border-gray-200 rounded-md p-4 text-center min-w-[80px] flex-1">
-<div class="text-xs font-semibold text-gray-600 mb-2">WED</div>
-<div id="weekly-wed" class="text-arkGreen font-bold">---</div>
-<div class="mt-1 flex justify-center"><button onclick="editNested('weekly', 'wed')" class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️ Edit</button></div>
-</div>
-<!-- Thursday -->
-<div class="bg-gray-50 border border-gray-200 rounded-md p-4 text-center min-w-[80px] flex-1">
-<div class="text-xs font-semibold text-gray-600 mb-2">THU</div>
-<div id="weekly-thu" class="text-arkGreen font-bold">---</div>
-<div class="mt-1 flex justify-center"><button onclick="editNested('weekly', 'thu')" class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️ Edit</button></div>
-</div>
-<!-- Friday -->
-<div class="bg-gray-50 border border-gray-200 rounded-md p-4 text-center min-w-[80px] flex-1">
-<div class="text-xs font-semibold text-gray-600 mb-2">FRI</div>
-<div id="weekly-fri" class="text-arkGreen font-bold">---</div>
-<div class="mt-1 flex justify-center"><button onclick="editNested('weekly', 'fri')" class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️ Edit</button></div>
-</div>
-<!-- Saturday -->
-<div class="bg-gray-50 border border-gray-200 rounded-md p-4 text-center min-w-[80px] flex-1">
-<div class="text-xs font-semibold text-gray-600 mb-2">SAT</div>
-<div id="weekly-sat" class="text-arkGreen font-bold">---</div>
-<div class="mt-1 flex justify-center"><button onclick="editNested('weekly', 'sat')" class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️ Edit</button></div>
-</div>
-<!-- Sunday -->
-<div class="bg-gray-50 border border-gray-200 rounded-md p-4 text-center min-w-[80px] flex-1">
-<div class="text-xs font-semibold text-red-600 mb-2">SUN</div>
-<div id="weekly-sun" class="text-arkGreen font-bold">---</div>
-<div class="mt-1 flex justify-center"><button onclick="editNested('weekly', 'sun')" class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️ Edit</button></div>
-</div>
-</div>
-<!-- Hot Numbers Content -->
-<div id="content-hot" class="hidden p-6 text-center bg-gray-50 border border-gray-200 rounded-md">
-  <div class="text-xs text-gray-500 mb-2 font-bold uppercase tracking-widest">Auto-calculated Top 5 Frequency</div>
-  <div id="hot-numbers-container" class="flex justify-center space-x-2 mt-4 flex-wrap gap-y-2"></div>
-</div>
-</section>
-<!-- END: Market Analysis -->
-<!-- BEGIN: About & Contact -->
-<section id="contact" class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
-<!-- About Portal -->
-<div class="bg-white rounded-lg shadow-card p-4 sm:p-6 md:p-8">
-<h2 class="text-2xl font-bold text-arkGreen mb-4">About Portal</h2>
-<p class="text-gray-600 leading-relaxed text-sm">
-          Ark Bazar is an informational portal that publishes publicly available number results and chart data. Our mission is to provide accurate, timely, and well-structured historical and daily data for analytical purposes. We pride ourselves on the speed and reliability of our updates.
+      </div>
+      <div class="overflow-x-auto w-full">
+        <div class="w-full">
+          <div
+            class="hidden sm:grid bg-arkYellow px-6 py-3 grid-cols-7 gap-4 text-sm font-semibold text-gray-800 text-center">
+            <div class="col-span-1 text-left">Market Name</div>
+            <div class="">Open Time</div>
+            <div class="">Close Time</div>
+            <div class="">Chart</div>
+            <div class="">Result</div>
+            <div class="">Status</div>
+            <div class="">To Get</div>
+          </div>
+          <div id="live-markets-container" class="border-t border-gray-200 bg-white"></div>
+          <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-center gap-4">
+            <button id="add-market-btn"
+              class="text-sm bg-arkGreen text-white px-4 py-2 rounded shadow">➕ Add Market</button>
+            <button id="save-markets-btn"
+              class="text-sm bg-blue-600 text-white px-4 py-2 rounded shadow hidden">💾 Save Markets</button>
+          </div>
+        </div>
+      </div>
+      </div>
+    </section>
+    <!-- END: Live Market Board -->
+    <!-- BEGIN: Result Chart Section -->
+    <section id="charts" class="bg-white rounded-lg shadow-card overflow-hidden hover-lift">
+      <div class="bg-arkTeal px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <h2 class="text-lg font-semibold text-gray-900">Ark Bazar Result Chart</h2>
+        <div
+          class="flex flex-col sm:flex-row items-stretch sm:items-center w-full sm:w-auto gap-2 sm:gap-4 mt-4 sm:mt-0">
+          <div class="relative w-full sm:w-auto">
+            <input id="chart-date-input"
+              class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-arkGreen focus:border-arkGreen sm:text-sm rounded-md"
+              placeholder="dd-mm-yyyy" type="date">
+          </div>
+          <div class="flex space-x-2">
+            <button id="chart-search-btn"
+              class="flex-1 sm:flex-none bg-arkGreen text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-800 shadow">Search</button>
+            <button id="chart-clear-btn"
+              class="flex-1 sm:flex-none bg-gray-100 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-200 border border-gray-300">Clear</button>
+          </div>
+        </div>
+      </div>
+      <div class="p-6">
+        <div class="bg-arkYellow rounded-md overflow-hidden flex items-center justify-between px-6 py-3 mb-2">
+          <div class="font-semibold text-gray-800 flex-1 text-center border-r border-yellow-500">DATE</div>
+          <div class="font-semibold text-gray-800 flex-1 text-center">ARK BAZAR</div>
+        </div>
+        <div id="chart-history-container" class="space-y-2"></div>
+        <button onclick="addHistoryRow()"
+          class="mt-4 text-sm bg-arkGreen text-white px-4 py-2 rounded shadow block mx-auto">➕ Add History Row</button>
+      </div>
+    </section>
+    <!-- END: Result Chart Section -->
+    <!-- BEGIN: Market Analysis -->
+    <section class="bg-white rounded-lg shadow-card p-4 sm:p-6 md:p-8">
+      <h2 class="text-2xl font-bold text-gray-900 text-center mb-6">Market Analysis</h2>
+      <!-- Tabs -->
+      <div class="border-b border-gray-200 mb-6 flex justify-center space-x-8">
+        <button id="tab-weekly" class="text-arkGreen font-semibold py-2 border-b-2 border-arkGreen">Weekly Grid</button>
+        <button id="tab-hot" class="text-gray-500 hover:text-gray-700 py-2 border-b-2 border-transparent">Hot
+          Numbers</button>
+      </div>
+      <!-- Weekly Grid -->
+      <div id="content-weekly" class="flex justify-between space-x-2 overflow-x-auto pb-2">
+        <!-- Monday -->
+        <div class="bg-gray-50 border border-gray-200 rounded-md p-4 text-center min-w-[80px] flex-1">
+          <div class="text-xs font-semibold text-gray-600 mb-2">MON</div>
+          <div id="weekly-mon" class="text-arkGreen font-bold">---</div>
+          <div class="mt-1 flex justify-center"><button onclick="editNested('weekly', 'mon')"
+              class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️
+              Edit</button></div>
+        </div>
+        <!-- Tuesday -->
+        <div class="bg-gray-50 border border-gray-200 rounded-md p-4 text-center min-w-[80px] flex-1">
+          <div class="text-xs font-semibold text-gray-600 mb-2">TUE</div>
+          <div id="weekly-tue" class="text-arkGreen font-bold">---</div>
+          <div class="mt-1 flex justify-center"><button onclick="editNested('weekly', 'tue')"
+              class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️
+              Edit</button></div>
+        </div>
+        <!-- Wednesday -->
+        <div class="bg-gray-50 border border-gray-200 rounded-md p-4 text-center min-w-[80px] flex-1">
+          <div class="text-xs font-semibold text-gray-600 mb-2">WED</div>
+          <div id="weekly-wed" class="text-arkGreen font-bold">---</div>
+          <div class="mt-1 flex justify-center"><button onclick="editNested('weekly', 'wed')"
+              class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️
+              Edit</button></div>
+        </div>
+        <!-- Thursday -->
+        <div class="bg-gray-50 border border-gray-200 rounded-md p-4 text-center min-w-[80px] flex-1">
+          <div class="text-xs font-semibold text-gray-600 mb-2">THU</div>
+          <div id="weekly-thu" class="text-arkGreen font-bold">---</div>
+          <div class="mt-1 flex justify-center"><button onclick="editNested('weekly', 'thu')"
+              class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️
+              Edit</button></div>
+        </div>
+        <!-- Friday -->
+        <div class="bg-gray-50 border border-gray-200 rounded-md p-4 text-center min-w-[80px] flex-1">
+          <div class="text-xs font-semibold text-gray-600 mb-2">FRI</div>
+          <div id="weekly-fri" class="text-arkGreen font-bold">---</div>
+          <div class="mt-1 flex justify-center"><button onclick="editNested('weekly', 'fri')"
+              class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️
+              Edit</button></div>
+        </div>
+        <!-- Saturday -->
+        <div class="bg-gray-50 border border-gray-200 rounded-md p-4 text-center min-w-[80px] flex-1">
+          <div class="text-xs font-semibold text-gray-600 mb-2">SAT</div>
+          <div id="weekly-sat" class="text-arkGreen font-bold">---</div>
+          <div class="mt-1 flex justify-center"><button onclick="editNested('weekly', 'sat')"
+              class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️
+              Edit</button></div>
+        </div>
+        <!-- Sunday -->
+        <div class="bg-gray-50 border border-gray-200 rounded-md p-4 text-center min-w-[80px] flex-1">
+          <div class="text-xs font-semibold text-red-600 mb-2">SUN</div>
+          <div id="weekly-sun" class="text-arkGreen font-bold">---</div>
+          <div class="mt-1 flex justify-center"><button onclick="editNested('weekly', 'sun')"
+              class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️
+              Edit</button></div>
+        </div>
+      </div>
+      <!-- Hot Numbers Content -->
+      <div id="content-hot" class="hidden p-6 text-center bg-gray-50 border border-gray-200 rounded-md">
+        <div class="text-xs text-gray-500 mb-2 font-bold uppercase tracking-widest">Auto-calculated Top 5 Frequency
+        </div>
+        <div id="hot-numbers-container" class="flex justify-center space-x-2 mt-4 flex-wrap gap-y-2"></div>
+      </div>
+    </section>
+    <!-- END: Market Analysis -->
+    <!-- BEGIN: About & Contact -->
+    <section id="contact" class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
+      <!-- About Portal -->
+      <div class="bg-white rounded-lg shadow-card p-4 sm:p-6 md:p-8">
+        <h2 class="text-2xl font-bold text-arkGreen mb-4">About Portal</h2>
+        <p class="text-gray-600 leading-relaxed text-sm">
+          Ark Bazar is an informational portal that publishes publicly available number results and chart data. Our
+          mission is to provide accurate, timely, and well-structured historical and daily data for analytical purposes.
+          We pride ourselves on the speed and reliability of our updates.
         </p>
-</div>
-<!-- Contact Information -->
-<div class="space-y-4">
-<h2 class="text-2xl font-bold text-arkGreen mb-4 hidden md:block">Contact Information</h2>
-<!-- Email Card -->
-<div class="bg-white rounded-lg shadow-card p-6 flex items-center space-x-4">
-<div class="bg-arkTeal text-white w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0">
-<i class="fa-regular fa-envelope text-xl"></i>
-</div>
-<div>
-<div class="text-xs font-semibold text-gray-500 tracking-wider uppercase mb-1">Email Us</div>
-<a class="text-gray-900 font-bold hover:text-arkGreen" href="mailto:contact@ankbazar.in">contact@ankbazar.in</a>
-</div>
-</div>
-<!-- Instagram Card -->
-<div class="bg-white rounded-lg shadow-card p-6 flex items-center space-x-4">
-<div class="bg-arkYellow text-gray-900 w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0">
-<i class="fa-brands fa-instagram text-xl"></i>
-</div>
-<div>
-<div class="text-xs font-semibold text-gray-500 tracking-wider uppercase mb-1">Follow Us</div>
-<a class="text-gray-900 font-bold hover:text-arkYellow" href="#">@ankbazar on Instagram</a>
-</div>
-</div>
-</div>
-</section>
-<!-- END: About & Contact -->
-</main>
-<!-- END: MainContent -->
-<!-- Feedback Button -->
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const sections = document.querySelectorAll("main[id], section[id]");
-    const navLinks = document.querySelectorAll(".nav-link");
-    const header = document.getElementById("header-wrapper") || document.querySelector("header");
-    
-    function onScroll() {
-      const scrollPos = window.scrollY;
-      const headerHeight = header.offsetHeight;
-      let currentSectionId = "home";
+      </div>
+      <!-- Contact Information -->
+      <div class="space-y-4">
+        <h2 class="text-2xl font-bold text-arkGreen mb-4 hidden md:block">Contact Information</h2>
+        <!-- Email Card -->
+        <div class="bg-white rounded-lg shadow-card p-6 flex items-center space-x-4">
+          <div class="bg-arkTeal text-white w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0">
+            <i class="fa-regular fa-envelope text-xl"></i>
+          </div>
+          <div>
+            <div class="text-xs font-semibold text-gray-500 tracking-wider uppercase mb-1">Email Us</div>
+            <a class="text-gray-900 font-bold hover:text-arkGreen"
+              href="mailto:contact@ankbazar.in">contact@ankbazar.in</a>
+          </div>
+        </div>
+        <!-- Instagram Card -->
+        <div class="bg-white rounded-lg shadow-card p-6 flex items-center space-x-4">
+          <div class="bg-arkYellow text-gray-900 w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0">
+            <i class="fa-brands fa-instagram text-xl"></i>
+          </div>
+          <div>
+            <div class="text-xs font-semibold text-gray-500 tracking-wider uppercase mb-1">Follow Us</div>
+            <a class="text-gray-900 font-bold hover:text-arkYellow" href="#">@ankbazar on Instagram</a>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- END: About & Contact -->
+  </main>
+  <!-- END: MainContent -->
+  <!-- Feedback Button -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const sections = document.querySelectorAll("main[id], section[id]");
+      const navLinks = document.querySelectorAll(".nav-link");
+      const header = document.getElementById("header-wrapper") || document.querySelector("header");
 
-      sections.forEach((section) => {
-        const sectionTop = section.offsetTop - headerHeight - 100;
+      function onScroll() {
+        const scrollPos = window.scrollY;
+        const headerHeight = header.offsetHeight;
+        let currentSectionId = "home";
 
-        if (scrollPos >= sectionTop) {
-          currentSectionId = section.getAttribute("id");
+        sections.forEach((section) => {
+          const sectionTop = section.offsetTop - headerHeight - 100;
+
+          if (scrollPos >= sectionTop) {
+            currentSectionId = section.getAttribute("id");
+          }
+        });
+
+        if ((window.innerHeight + Math.round(window.scrollY)) >= document.body.offsetHeight - 20) {
+          currentSectionId = "contact";
         }
-      });
 
-      if ((window.innerHeight + Math.round(window.scrollY)) >= document.body.offsetHeight - 20) {
-         currentSectionId = "contact";
+        navLinks.forEach((link) => {
+          link.classList.remove("active", "text-white");
+          link.classList.add("text-gray-200");
+
+          if (link.getAttribute("href") === `#${currentSectionId}`) {
+            link.classList.add("active", "text-white");
+            link.classList.remove("text-gray-200");
+          }
+        });
       }
 
-      navLinks.forEach((link) => {
-        link.classList.remove("active", "text-white");
-        link.classList.add("text-gray-200");
-        
-        if (link.getAttribute("href") === `#${currentSectionId}`) {
-          link.classList.add("active", "text-white");
-          link.classList.remove("text-gray-200");
-        }
-      });
-    }
+      navLinks.forEach(link => {
+        link.addEventListener("click", function (e) {
+          e.preventDefault();
+          const targetId = this.getAttribute("href").substring(1);
+          const targetElement = document.getElementById(targetId);
 
-    navLinks.forEach(link => {
-      link.addEventListener("click", function(e) {
-        e.preventDefault();
-        const targetId = this.getAttribute("href").substring(1);
-        const targetElement = document.getElementById(targetId);
-        
-        if (targetElement) {
-          window.scrollTo({
-            top: targetElement.offsetTop - header.offsetHeight - 20,
-            behavior: "smooth"
-          });
-        }
+          if (targetElement) {
+            window.scrollTo({
+              top: targetElement.offsetTop - header.offsetHeight - 20,
+              behavior: "smooth"
+            });
+          }
+        });
       });
+
+      window.addEventListener("scroll", onScroll);
+      onScroll();
+
+      // Market Analysis Tabs
+      const tabWeekly = document.getElementById('tab-weekly');
+      const tabHot = document.getElementById('tab-hot');
+      const contentWeekly = document.getElementById('content-weekly');
+      const contentHot = document.getElementById('content-hot');
+
+      if (tabWeekly && tabHot) {
+        tabWeekly.addEventListener('click', () => {
+          tabWeekly.classList.add('text-arkGreen', 'border-arkGreen');
+          tabWeekly.classList.remove('text-gray-500', 'border-transparent');
+          tabHot.classList.remove('text-arkGreen', 'border-arkGreen');
+          tabHot.classList.add('text-gray-500', 'border-transparent');
+
+          contentWeekly.classList.remove('hidden');
+          contentWeekly.classList.add('flex');
+          contentHot.classList.add('hidden');
+        });
+
+        tabHot.addEventListener('click', () => {
+          tabHot.classList.add('text-arkGreen', 'border-arkGreen');
+          tabHot.classList.remove('text-gray-500', 'border-transparent');
+          tabWeekly.classList.remove('text-arkGreen', 'border-arkGreen');
+          tabWeekly.classList.add('text-gray-500', 'border-transparent');
+
+          contentHot.classList.remove('hidden');
+          contentWeekly.classList.add('hidden');
+          contentWeekly.classList.remove('flex');
+        });
+      }
     });
-
-    window.addEventListener("scroll", onScroll);
-    onScroll();
-
-    // Market Analysis Tabs
-    const tabWeekly = document.getElementById('tab-weekly');
-    const tabHot = document.getElementById('tab-hot');
-    const contentWeekly = document.getElementById('content-weekly');
-    const contentHot = document.getElementById('content-hot');
-
-    if (tabWeekly && tabHot) {
-      tabWeekly.addEventListener('click', () => {
-        tabWeekly.classList.add('text-arkGreen', 'border-arkGreen');
-        tabWeekly.classList.remove('text-gray-500', 'border-transparent');
-        tabHot.classList.remove('text-arkGreen', 'border-arkGreen');
-        tabHot.classList.add('text-gray-500', 'border-transparent');
-        
-        contentWeekly.classList.remove('hidden');
-        contentWeekly.classList.add('flex');
-        contentHot.classList.add('hidden');
-      });
-
-      tabHot.addEventListener('click', () => {
-        tabHot.classList.add('text-arkGreen', 'border-arkGreen');
-        tabHot.classList.remove('text-gray-500', 'border-transparent');
-        tabWeekly.classList.remove('text-arkGreen', 'border-arkGreen');
-        tabWeekly.classList.add('text-gray-500', 'border-transparent');
-        
-        contentHot.classList.remove('hidden');
-        contentWeekly.classList.add('hidden');
-        contentWeekly.classList.remove('flex');
-      });
-    }
-  });
-</script>
+  </script>
 
 
 
@@ -421,127 +493,132 @@ Click here to get in
 
 
 
-<footer class="bg-arkDarkGrey text-white py-8 mt-12 w-full">
-  <div class="max-w-4xl mx-auto px-4 text-center text-sm">
-    <p>&copy; 2026 Ark Bazar. All rights reserved.</p>
-    <div class="mt-2">
-      <a href="legal.html" class="text-arkYellow hover:underline">Legal Information & Privacy Policy</a>
+  <footer class="bg-arkDarkGrey text-white py-8 mt-12 w-full">
+    <div class="max-w-4xl mx-auto px-4 text-center text-sm">
+      <p>&copy; 2026 Ark Bazar. All rights reserved.</p>
+      <div class="mt-2">
+        <a href="legal.html" class="text-arkYellow hover:underline">Legal Information & Privacy Policy</a>
+      </div>
     </div>
-  </div>
-</footer>
+  </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="supabase-config.js"></script>
-<script>
-  const serverUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:') ? 'https://ankbazar.onrender.com' : '';
-  
-  if (window.supabaseClient) {
-    window.supabaseClient.channel('custom-all-channel')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'SiteData' }, payload => {
-        updateUI(payload.new);
-      })
-      .subscribe();
-  }
-  
-  window.appState = {};
-  window.fullChartHistory = [];
-  
-  function renderChartHistory(items) {
-    const historyContainer = document.getElementById('chart-history-container');
-    if (items.length === 0) {
-      historyContainer.innerHTML = '<div class="text-center text-gray-500 py-4">No results found for this date.</div>';
-      return;
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script>
+    const serverUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:') ? 'https://ankbazar.onrender.com' : '';
+
+    if (window.supabaseClient) {
+      window.supabaseClient.channel('custom-all-channel')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'SiteData' }, payload => {
+          updateUI(payload.new);
+        })
+        .subscribe();
     }
-    historyContainer.innerHTML = items.map(item => `<div class="bg-gray-50 border rounded-md flex items-center justify-between px-6 py-3">
+
+    window.appState = {};
+    window.fullChartHistory = [];
+
+    function renderChartHistory(items) {
+      const historyContainer = document.getElementById('chart-history-container');
+      if (items.length === 0) {
+        historyContainer.innerHTML = '<div class="text-center text-gray-500 py-4">No results found for this date.</div>';
+        return;
+      }
+      historyContainer.innerHTML = items.map(item => `<div class="bg-gray-50 border rounded-md flex items-center justify-between px-6 py-3">
         <div class="flex-1 text-center font-bold text-gray-700">${item.date} <button onclick="editHistory('${item.id}', 'date')" class="ml-2 text-[10px] bg-white border px-1 rounded shadow hover:bg-gray-100">✏️</button></div>
         <div class="flex-1 text-center font-bold text-arkGreen text-lg">${item.result} <button onclick="editHistory('${item.id}', 'result')" class="ml-2 text-[10px] bg-white border px-1 rounded shadow hover:bg-gray-100">✏️</button></div>
         <div class="w-[100px] text-right">
           <button onclick="deleteHistory('${item.id}')" class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded border border-red-300 shadow hover:bg-red-200">🗑️ Delete</button>
         </div>
       </div>`).join('');
-  }
+    }
 
-  document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById('chart-search-btn').addEventListener('click', () => {
-      const dateInput = document.getElementById('chart-date-input').value;
-      if (!dateInput) return;
-      const parts = dateInput.split('-');
-      if (parts.length === 3) {
-        const formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
-        const filtered = window.fullChartHistory.filter(item => item.date === formattedDate);
-        renderChartHistory(filtered);
-      }
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById('chart-search-btn').addEventListener('click', () => {
+        const dateInput = document.getElementById('chart-date-input').value;
+        if (!dateInput) return;
+        const parts = dateInput.split('-');
+        if (parts.length === 3) {
+          const formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+          const filtered = window.fullChartHistory.filter(item => item.date === formattedDate);
+          renderChartHistory(filtered);
+        }
+      });
+
+      document.getElementById('chart-clear-btn').addEventListener('click', () => {
+        document.getElementById('chart-date-input').value = '';
+        renderChartHistory(window.fullChartHistory.slice(0, 3));
+      });
     });
 
-    document.getElementById('chart-clear-btn').addEventListener('click', () => {
-      document.getElementById('chart-date-input').value = '';
-      renderChartHistory(window.fullChartHistory.slice(0, 3));
-    });
-  });
+    function updateUI(data) {
+      try {
+        if (!data) return;
+        window.appState = data;
 
-  function updateUI(data) {
-    try {
-      if (!data) return;
-      window.appState = data;
-      
-      // Auto-reset logic at midnight
-      const todayStr = new Date().toDateString();
-      if (data.lastResetDate !== todayStr) {
-        if (data.lastResetDate) {
-           if (data.mainTodayResult && data.mainTodayResult !== "-") {
-               data.mainResult = data.mainTodayResult;
-           }
-        }
-        data.mainTodayResult = "-";
-        if (data.liveMarkets) {
-           data.liveMarkets.forEach(m => m.result = "-");
-        }
-        data.lastResetDate = todayStr;
-        
-        if (window.supabaseClient) {
-          const toSave = { ...data };
-          delete toSave._id;
-          delete toSave.__v;
-          window.supabaseClient.from('SiteData').upsert({ ...toSave, id: 1 }).then(() => {});
-        }
-      }
+        // Auto-reset logic at midnight
+        const todayStr = new Date().toDateString();
+        if (data.lastResetDate !== todayStr) {
+          if (data.lastResetDate) {
+            if (data.mainTodayResult && data.mainTodayResult !== "-") {
+              data.mainResult = data.mainTodayResult;
+            }
+          }
+          data.mainTodayResult = "-";
+          if (Array.isArray(data.liveMarkets)) {
+            data.liveMarkets.forEach(m => m.result = "-");
+          }
+          data.lastResetDate = todayStr;
 
-      const safeText = (id, txt) => {
-        const el = document.getElementById(id);
-        if (el) el.innerText = String(txt || "-");
-      };
-      safeText('main-result-time', 'at ' + (data.mainResultTime || ""));
-      if (document.getElementById('main-result-display')) document.getElementById('main-result-display').innerText = data.mainResult || "-";
-      else safeText('main-result', data.mainResult || "-");
-      safeText('main-today-result', data.mainTodayResult || "-");
-      
-      function getMarketStatus(m) {
-        if (m.result && m.result !== "-" && m.result !== "--") return "RESULT OUT";
-        const now = new Date();
-        const parseT = (str) => {
-          if (!str) return null;
-          const parts = str.trim().split(/\s+/);
-          if (parts.length < 2) return null;
-          let [h, mins] = parts[0].split(':').map(Number);
-          const ampm = parts[1].toUpperCase();
-          if (ampm === 'PM' && h < 12) h += 12;
-          if (ampm === 'AM' && h === 12) h = 0;
-          const d = new Date(now);
-          d.setHours(h, mins, 0, 0);
-          return d;
+          if (window.supabaseClient) {
+            const toSave = { ...data };
+            delete toSave._id;
+            delete toSave.__v;
+
+            window.supabaseClient.from('SiteData').upsert({ ...toSave, id: 1 }).then(() => { });
+          }
+        }
+
+        const safeText = (id, txt) => {
+          const el = document.getElementById(id);
+          if (el) el.innerText = String(txt || "-");
         };
-        const op = parseT(m.openTime);
-        const cl = parseT(m.closeTime);
-        if (!op || !cl) return "CLOSED";
-        if (now < op) return "CLOSED";
-        if (now >= op && now < cl) return "LIVE";
-        return "RESULT OUT";
-      }
-      
-      const liveContainer = document.getElementById('live-markets-container');
-      if (liveContainer) {
-        liveContainer.innerHTML = (data.liveMarkets || []).map(m => {
-            const dynamicStatus = getMarketStatus(m);
+        safeText('main-result-time', 'at ' + (data.mainResultTime || ""));
+        if (document.getElementById('main-result-display')) document.getElementById('main-result-display').innerText = data.mainResult || "-";
+        else safeText('main-result', data.mainResult || "-");
+        safeText('main-today-result', data.mainTodayResult || "-");
+
+        function getMarketStatus(m) {
+          if (m.result && m.result !== "-" && m.result !== "--") return "RESULT OUT";
+          const now = new Date();
+          const parseT = (str) => {
+            if (!str) return null;
+            const parts = str.trim().split(/\s+/);
+            if (parts.length < 2) return null;
+            let [h, mins] = parts[0].split(':').map(Number);
+            const ampm = parts[1].toUpperCase();
+            if (ampm === 'PM' && h < 12) h += 12;
+            if (ampm === 'AM' && h === 12) h = 0;
+            const d = new Date(now);
+            d.setHours(h, mins, 0, 0);
+            return d;
+          };
+          const op = parseT(m.openTime);
+          const cl = parseT(m.closeTime);
+          if (!op || !cl) return "CLOSED";
+          if (now < op) return "CLOSED";
+          if (now >= op && now < cl) return "LIVE";
+          return "RESULT OUT";
+        }
+
+        const liveContainer = document.getElementById('live-markets-container');
+        if (liveContainer) {
+          const markets = Array.isArray(data.liveMarkets) ? data.liveMarkets : [];
+          if (markets.length === 0) {
+            liveContainer.innerHTML = '<div class="text-center py-8 text-gray-500 font-medium bg-gray-50 m-4 rounded">No live markets available.</div>';
+          } else {
+            liveContainer.innerHTML = markets.map(m => {
+              const dynamicStatus = getMarketStatus(m);
             let statusBadge = '';
             if (dynamicStatus === 'LIVE') {
               statusBadge = '<span class="bg-red-100 text-red-600 font-bold text-[10px] px-2 py-0.5 rounded border border-red-300 animate-pulse uppercase">LIVE</span>';
@@ -556,10 +633,10 @@ Click here to get in
               <div class="flex justify-between items-center">
                 <div>
                   <div class="font-bold flex items-center space-x-2 text-base text-gray-900">
-                    <span>${m.name}</span>
+                    <span>${m.marketName || m.name}</span>
                     <i class="fa-solid fa-star text-arkYellow text-xs"></i>
                   </div>
-                  <div class="mt-1"><button onclick="editLiveMarket('${m.id}', 'name')" class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️ Edit</button></div>
+                  <div class="mt-1"><button onclick="editLiveMarket('${m.id}', 'marketName')" class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️ Edit</button></div>
                 </div>
                 ${statusBadge}
               </div>
@@ -586,13 +663,13 @@ Click here to get in
               </div>
             </div>
             <!-- Desktop View (Admin) -->
-            <div class="hidden sm:grid grid-cols-7 gap-4 py-4 px-6 border-b border-gray-100 items-center text-center text-sm hover:bg-gray-50 transition-colors">
+            <div class="hidden sm:grid grid-cols-6 gap-4 py-4 px-6 border-b border-gray-100 items-center text-center text-sm hover:bg-gray-50 transition-colors">
               <div class="col-span-1 text-left flex flex-col justify-center">
                 <div class="font-bold flex items-center space-x-2 text-gray-900">
-                  <span>${m.name}</span>
+                  <span>${m.marketName || m.name}</span>
                   <i class="fa-solid fa-star text-arkYellow text-xs"></i>
                 </div>
-                <div class="mt-1"><button onclick="editLiveMarket('${m.id}', 'name')" class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️ Edit</button></div>
+                <div class="mt-1"><button onclick="editLiveMarket('${m.id}', 'marketName')" class="text-[10px] bg-white border border-gray-400 text-gray-700 px-2 py-0.5 rounded shadow hover:bg-gray-100">✏️ Edit</button></div>
               </div>
               <div class="flex flex-col justify-center text-gray-700">
                 <div>${m.openTime}</div>
@@ -617,210 +694,317 @@ Click here to get in
               </div>
             </div>
             `;
-        }).join('');
-      }
-      
-      safeText('weekly-mon', data.weekly?.mon || "-");
-      safeText('weekly-tue', data.weekly?.tue || "-");
-      safeText('weekly-wed', data.weekly?.wed || "-");
-      safeText('weekly-thu', data.weekly?.thu || "-");
-      safeText('weekly-fri', data.weekly?.fri || "-");
-      safeText('weekly-sat', data.weekly?.sat || "-");
-      safeText('weekly-sun', data.weekly?.sun || "-");
-      
-      // Render auto-calculated hot numbers
-      const hotContainer = document.getElementById('hot-numbers-container');
-      if (hotContainer) {
-        const hots = data.hotNumbers || [];
-        if(hots.length === 0) {
-           hotContainer.innerHTML = '<div class="text-gray-500 text-sm italic w-full">No hot numbers available.</div>';
-        } else {
-           hotContainer.innerHTML = hots.map(num => `<span class="w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold text-sm hover-lift cursor-default transition-all duration-300">${num}</span>`).join('');
-        }
-      }
-      
-      window.fullChartHistory = data.chartHistory || [];
-      if (!document.getElementById('chart-date-input') || !document.getElementById('chart-date-input').value) {
-        renderChartHistory(window.fullChartHistory.slice(0, 3));
-      } else {
-        const dateInput = document.getElementById('chart-date-input').value;
-        const parts = dateInput.split('-');
-        if (parts.length === 3) {
-          const formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
-          const filtered = window.fullChartHistory.filter(item => item.date === formattedDate);
-          renderChartHistory(filtered);
-        } else {
-          renderChartHistory(window.fullChartHistory.slice(0, 3));
-        }
-      }
-    } catch (err) {
-      console.error("updateUI error:", err);
-    }
-  }
-
-  document.addEventListener("DOMContentLoaded", () => {
-    try {
-      if (window.__INITIAL_STATE__) {
-        updateUI(window.__INITIAL_STATE__);
-      }
-    } catch(e) { console.error("Initial state error:", e); }
-    // Fetch initial state directly from Supabase
-    if (window.supabaseClient) {
-      window.supabaseClient.from('SiteData').select('*').limit(1).single()
-        .then(({ data, error }) => {
-          if (!error && data) {
-            updateUI(data);
-          } else {
-            console.error("Failed to load initial state from Supabase:", error);
+          }).join('');
           }
-        });
-    } else {
-      // Fallback for local development if Supabase client is missing
-      fetch((serverUrl ? serverUrl : '') + '/api/state?t=' + new Date().getTime())
-        .then(res => res.json())
-        .then(data => updateUI(data))
-        .catch(err => console.error("Error fetching initial state:", err));
-    }
-  });
+        }
 
+        safeText('weekly-mon', data.weekly?.mon || "-");
+        safeText('weekly-tue', data.weekly?.tue || "-");
+        safeText('weekly-wed', data.weekly?.wed || "-");
+        safeText('weekly-thu', data.weekly?.thu || "-");
+        safeText('weekly-fri', data.weekly?.fri || "-");
+        safeText('weekly-sat', data.weekly?.sat || "-");
+        safeText('weekly-sun', data.weekly?.sun || "-");
 
+        // Render auto-calculated hot numbers
+        const hotContainer = document.getElementById('hot-numbers-container');
+        if (hotContainer) {
+          const hots = data.hotNumbers || [];
+          if (hots.length === 0) {
+            hotContainer.innerHTML = '<div class="text-gray-500 text-sm italic w-full">No hot numbers available.</div>';
+          } else {
+            hotContainer.innerHTML = hots.map(num => `<span class="w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold text-sm hover-lift cursor-default transition-all duration-300">${num}</span>`).join('');
+          }
+        }
 
-  function editField(field, type='field') {
-    const val = prompt("Enter new value:");
-    if (val !== null) {
-      processUpdate( { type: type, field: field, value: val || '-' });
+        window.fullChartHistory = data.chartHistory || [];
+        if (!document.getElementById('chart-date-input') || !document.getElementById('chart-date-input').value) {
+          renderChartHistory(window.fullChartHistory.slice(0, 3));
+        } else {
+          const dateInput = document.getElementById('chart-date-input').value;
+          const parts = dateInput.split('-');
+          if (parts.length === 3) {
+            const formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+            const filtered = window.fullChartHistory.filter(item => item.date === formattedDate);
+            renderChartHistory(filtered);
+          } else {
+            renderChartHistory(window.fullChartHistory.slice(0, 3));
+          }
+        }
+      } catch (err) {
+        console.error("updateUI error:", err);
+      }
     }
-  }
-  function editNested(parent, field) {
-    const val = prompt("Enter new value:");
-    if (val !== null) {
-      processUpdate( { type: 'nested', parent: parent, field: field, value: val || '-' });
-    }
-  }
-  function addHotNumber() {
-    const val = prompt("Enter hot number (e.g. 15):");
-    if (val !== null && val.trim() !== "") {
-      processUpdate( { type: 'array_add', target: 'hotNumbers', value: val });
-    }
-  }
-  function editArray(target, index) {
-    const val = prompt("Enter new value:");
-    if (val !== null) {
-      processUpdate( { type: 'array_edit', target: target, index: index, value: val || '--' });
-    }
-  }
-  function deleteArray(target, index) {
-    if(confirm("Delete this?")) processUpdate( { type: 'array_delete', target: target, index: index });
-  }
-  function addHistoryRow() {
-    const date = prompt("Enter date (e.g. 05-08-2026):");
-    if (!date) return;
-    const result = prompt("Enter result (e.g. 100-20):");
-    if (!result) return;
-    processUpdate( { type: 'history_add', date: date, result: result });
-  }
-  function editHistory(id, field) {
-    const val = prompt("Enter new value:");
-    if (val !== null) {
-      processUpdate( { type: 'history_edit', id: id, field: field, value: val || '-' });
-    }
-  }
-  function deleteHistory(id) {
-    if(confirm("Delete this row?")) processUpdate( { type: 'history_delete', id: id });
-  }
-  function addLiveMarket() {
-    processUpdate( { type: 'market_add' });
-  }
-  function editLiveMarket(id, field) {
-    const val = prompt("Enter new value:");
-    if (val !== null) {
-      processUpdate( { type: 'market_edit', id: id, field: field, value: val || '-' });
-    }
-  }
-  function deleteLiveMarket(id) {
-    if(confirm("Delete this market?")) processUpdate( { type: 'market_delete', id: id });
-  }
-  
-  function recalcHotNumbers() {
-    const counts = {};
-    (window.appState.chartHistory || []).forEach(item => {
-      const res = String(item.result).trim();
-      if (res && res !== "-" && res !== "--") {
-        counts[res] = (counts[res] || 0) + 1;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      try {
+        if (window.__INITIAL_STATE__) {
+          updateUI(window.__INITIAL_STATE__);
+        }
+      } catch (e) { console.error("Initial state error:", e); }
+      // Fetch initial state directly from Supabase
+      if (window.supabaseClient) {
+        window.supabaseClient.from('SiteData').select('*').limit(1).single()
+          .then(({ data, error }) => {
+            if (!error && data) {
+              updateUI(data);
+            } else {
+              console.error("Failed to load initial state from Supabase:", error);
+            }
+          });
+      } else {
+        // Fallback for local development if Supabase client is missing
+        fetch((serverUrl ? serverUrl : '') + '/api/state?t=' + new Date().getTime())
+          .then(res => res.json())
+          .then(data => updateUI(data))
+          .catch(err => console.error("Error fetching initial state:", err));
       }
     });
-    const sorted = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
-    window.appState.hotNumbers = sorted.slice(0, 5);
-  }
 
-  function processUpdate(payload) {
-    if (!window.appState) return;
-    if (payload.type === 'field') {
-      window.appState[payload.field] = payload.value;
-      if (payload.field === 'mainResult' || payload.field === 'mainTodayResult') {
-        const now = new Date();
-        const day = String(now.getDate()).padStart(2, '0');
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-        const year = now.getFullYear();
-        const dateStr = `${day}-${month}-${year}`;
 
-        const existing = window.appState.chartHistory.find(x => x.date === dateStr);
-        if (existing) {
-          existing.result = payload.value;
-        } else {
-          window.appState.chartHistory.unshift({ id: Date.now().toString(), date: dateStr, result: payload.value });
-        }
+
+    function editField(field, type = 'field') {
+      const val = prompt("Enter new value:");
+      if (val !== null) {
+        processUpdate({ type: type, field: field, value: val || '-' });
       }
-    } else if (payload.type === 'nested') {
-      if (window.appState[payload.parent]) window.appState[payload.parent][payload.field] = payload.value;
-    } else if (payload.type === 'array_edit') {
-      window.appState[payload.target][payload.index] = payload.value;
-    } else if (payload.type === 'array_delete') {
-      window.appState[payload.target].splice(payload.index, 1);
-    } else if (payload.type === 'array_add') {
-      window.appState[payload.target].push(payload.value);
-    } else if (payload.type === 'history_edit') {
-      const item = window.appState.chartHistory.find(x => x.id === payload.id);
-      if (item) item[payload.field] = payload.value;
-    } else if (payload.type === 'history_delete') {
-      window.appState.chartHistory = window.appState.chartHistory.filter(x => x.id !== payload.id);
-    } else if (payload.type === 'history_add') {
-      window.appState.chartHistory.unshift({ id: Date.now().toString(), date: payload.date, result: payload.result });
-    } else if (payload.type === 'market_add') {
-      if (!window.appState.liveMarkets) window.appState.liveMarkets = [];
-      window.appState.liveMarkets.push({ id: Date.now().toString(), name: "New Market", openTime: "09:00 AM", closeTime: "07:00 PM", result: "-", status: "CLOSED" });
-    } else if (payload.type === 'market_delete') {
-      window.appState.liveMarkets = window.appState.liveMarkets.filter(m => m.id !== payload.id);
-    } else if (payload.type === 'market_edit') {
-      const m = window.appState.liveMarkets.find(m => m.id === payload.id);
-      if (m) m[payload.field] = payload.value;
+    }
+    function editNested(parent, field) {
+      const val = prompt("Enter new value:");
+      if (val !== null) {
+        processUpdate({ type: 'nested', parent: parent, field: field, value: val || '-' });
+      }
+    }
+    function addHotNumber() {
+      const val = prompt("Enter hot number (e.g. 15):");
+      if (val !== null && val.trim() !== "") {
+        processUpdate({ type: 'array_add', target: 'hotNumbers', value: val });
+      }
+    }
+    function editArray(target, index) {
+      const val = prompt("Enter new value:");
+      if (val !== null) {
+        processUpdate({ type: 'array_edit', target: target, index: index, value: val || '--' });
+      }
+    }
+    function deleteArray(target, index) {
+      if (confirm("Delete this?")) processUpdate({ type: 'array_delete', target: target, index: index });
+    }
+    function addHistoryRow() {
+      const date = prompt("Enter date (e.g. 05-08-2026):");
+      if (!date) return;
+      const result = prompt("Enter result (e.g. 100-20):");
+      if (!result) return;
+      processUpdate({ type: 'history_add', date: date, result: result });
+    }
+    function editHistory(id, field) {
+      const val = prompt("Enter new value:");
+      if (val !== null) {
+        processUpdate({ type: 'history_edit', id: id, field: field, value: val || '-' });
+      }
+    }
+    function deleteHistory(id) {
+      if (confirm("Delete this row?")) processUpdate({ type: 'history_delete', id: id });
+    }
+    function addLiveMarket() {
+      processUpdate({ type: 'market_add' });
+    }
+    function editLiveMarket(id, field) {
+      const val = prompt("Enter new value:");
+      if (val !== null) {
+        processUpdate({ type: 'market_edit', id: id, field: field, value: val || '-' });
+      }
+    }
+    function deleteLiveMarket(id) {
+      if (confirm("Delete this market?")) processUpdate({ type: 'market_delete', id: id });
     }
 
-    recalcHotNumbers();
-    
-    // Save to Supabase 
-    if (window.supabaseClient) {
-      const toSave = { ...window.appState };
-      const _id = toSave.id || 1;
-      
-      // Assume the table uses integer 'id' primary key or uuid.
-      // If it's a settings table, typically there's only 1 row anyway.
-      // Make sure we delete any _id from MongoDB so it doesn't break Postgres inserts
-      delete toSave._id; 
-      delete toSave.__v;
+    function recalcHotNumbers() {
+      const counts = {};
+      (window.appState.chartHistory || []).forEach(item => {
+        const res = String(item.result).trim();
+        if (res && res !== "-" && res !== "--") {
+          counts[res] = (counts[res] || 0) + 1;
+        }
+      });
+      const sorted = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
+      window.appState.hotNumbers = sorted.slice(0, 5);
+    }
 
-      window.supabaseClient.from('SiteData').upsert({ ...toSave, id: _id })
-        .then(({error}) => { 
-           if(error) {
-             console.error("Error saving to Supabase:", error); 
-             alert("Error saving data: " + error.message);
-           }
-        });
+    function processUpdate(payload) {
+      if (!window.appState) window.appState = { id: 1 };
+      if (payload.type === 'field') {
+        window.appState[payload.field] = payload.value;
+        if (payload.field === 'mainResult' || payload.field === 'mainTodayResult') {
+          const now = new Date();
+          const day = String(now.getDate()).padStart(2, '0');
+          const month = String(now.getMonth() + 1).padStart(2, '0');
+          const year = now.getFullYear();
+          const dateStr = `${day}-${month}-${year}`;
+
+          const existing = window.appState.chartHistory.find(x => x.date === dateStr);
+          if (existing) {
+            existing.result = payload.value;
+          } else {
+            window.appState.chartHistory.unshift({ id: Date.now().toString(), date: dateStr, result: payload.value });
+          }
+        }
+      } else if (payload.type === 'nested') {
+        if (window.appState[payload.parent]) window.appState[payload.parent][payload.field] = payload.value;
+      } else if (payload.type === 'array_edit') {
+        window.appState[payload.target][payload.index] = payload.value;
+      } else if (payload.type === 'array_delete') {
+        window.appState[payload.target].splice(payload.index, 1);
+      } else if (payload.type === 'array_add') {
+        window.appState[payload.target].push(payload.value);
+      } else if (payload.type === 'history_edit') {
+        const item = window.appState.chartHistory.find(x => x.id === payload.id);
+        if (item) item[payload.field] = payload.value;
+      } else if (payload.type === 'history_delete') {
+        window.appState.chartHistory = window.appState.chartHistory.filter(x => x.id !== payload.id);
+      } else if (payload.type === 'history_add') {
+        window.appState.chartHistory.unshift({ id: Date.now().toString(), date: payload.date, result: payload.result });
+      } else if (payload.type === 'market_delete') {
+        window.appState.liveMarkets = window.appState.liveMarkets.filter(m => m.id !== payload.id);
+      } else if (payload.type === 'market_edit') {
+        const m = window.appState.liveMarkets.find(m => m.id === payload.id);
+        if (m) m[payload.field] = payload.value;
+      }
+
+      recalcHotNumbers();
+
+      // Save to Supabase 
+      if (window.supabaseClient) {
+        const _id = window.appState.id || 1;
         
-      // Optimistic UI update
-      updateUI(window.appState);
-    }
-  }
-</script>
-</body></html>
+        const toUpdate = {};
+        if (payload.type.startsWith('market_')) {
+          toUpdate.liveMarkets = window.appState.liveMarkets;
+        } else if (payload.type.startsWith('history_')) {
+          toUpdate.chartHistory = window.appState.chartHistory;
+        } else if (payload.type === 'field') {
+          toUpdate[payload.field] = window.appState[payload.field];
+        } else if (payload.type.startsWith('array_')) {
+          toUpdate[payload.target] = window.appState[payload.target];
+        } else {
+          Object.assign(toUpdate, window.appState);
+          delete toUpdate._id; delete toUpdate.__v; delete toUpdate.id;
+        }
 
+        window.supabaseClient.from('SiteData').update(toUpdate).eq('id', _id)
+          .then(({ error }) => {
+            if (error) {
+              console.error("Error saving to Supabase:", error);
+              alert("Error saving data: " + error.message);
+            }
+          });
+
+        // Optimistic UI update
+        updateUI(window.appState);
+      }
+    }
+
+    // New DOM-based Add Market Functions
+    function addLiveMarketRow() {
+      const container = document.getElementById('live-markets-container');
+      if (container.innerText.includes("No live markets available")) {
+        container.innerHTML = "";
+      }
+      
+      const id = "row-" + Date.now();
+      
+      const row = document.createElement('div');
+      row.className = "hidden sm:grid grid-cols-7 gap-4 py-4 px-6 border-b border-gray-100 items-center text-center text-sm market-input-row market-input-row-desktop bg-blue-50";
+      row.setAttribute("data-row-id", id);
+      row.innerHTML = `
+        <div class="col-span-1 text-left"><input type="text" class="border p-1 w-full text-xs market-name-input" placeholder="Market Name"></div>
+        <div><input type="text" class="border p-1 w-full text-xs market-open-input" placeholder="09:00 AM"></div>
+        <div><input type="text" class="border p-1 w-full text-xs market-close-input" placeholder="05:00 PM"></div>
+        <div>-</div>
+        <div><input type="text" class="border p-1 w-full text-xs market-result-input" placeholder="-"></div>
+        <div><input type="text" class="border p-1 w-full text-xs market-status-input" placeholder="CLOSED"></div>
+        <div><button onclick="document.querySelectorAll('[data-row-id=\\'${id}\\']').forEach(e => e.remove()); if(document.querySelectorAll('.market-input-row-desktop').length === 0) document.getElementById('save-markets-btn').classList.add('hidden');" class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded border border-red-300">🗑️ Cancel</button></div>
+      `;
+      
+      // Also add a mobile version of the input row for mobile users
+      const mobileRow = document.createElement('div');
+      mobileRow.className = "sm:hidden border-b border-gray-100 p-4 space-y-3 relative market-input-row market-input-row-mobile bg-blue-50";
+      mobileRow.setAttribute("data-row-id", id);
+      mobileRow.innerHTML = `
+        <div class="flex flex-col space-y-2">
+          <input type="text" class="border p-1 w-full text-xs market-name-input-mobile font-bold" placeholder="Market Name">
+          <input type="text" class="border p-1 w-full text-xs market-open-input-mobile" placeholder="Open: 09:00 AM">
+          <input type="text" class="border p-1 w-full text-xs market-close-input-mobile" placeholder="Close: 05:00 PM">
+          <input type="text" class="border p-1 w-full text-xs market-result-input-mobile" placeholder="Result">
+          <input type="text" class="border p-1 w-full text-xs market-status-input-mobile" placeholder="Status (CLOSED)">
+          <button onclick="document.querySelectorAll('[data-row-id=\\'${id}\\']').forEach(e => e.remove()); if(document.querySelectorAll('.market-input-row-desktop').length === 0) document.getElementById('save-markets-btn').classList.add('hidden');" class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded border border-red-300 w-full mt-2">🗑️ Cancel</button>
+        </div>
+      `;
+      
+      // Sync inputs between desktop and mobile views
+      const syncInputs = (desktopClass, mobileClass) => {
+        const desktopInput = row.querySelector('.' + desktopClass);
+        const mobileInput = mobileRow.querySelector('.' + mobileClass);
+        desktopInput.addEventListener('input', (e) => mobileInput.value = e.target.value);
+        mobileInput.addEventListener('input', (e) => desktopInput.value = e.target.value);
+      };
+      
+      container.appendChild(row);
+      container.appendChild(mobileRow);
+      
+      syncInputs('market-name-input', 'market-name-input-mobile');
+      syncInputs('market-open-input', 'market-open-input-mobile');
+      syncInputs('market-close-input', 'market-close-input-mobile');
+      syncInputs('market-result-input', 'market-result-input-mobile');
+      syncInputs('market-status-input', 'market-status-input-mobile');
+      
+      document.getElementById('save-markets-btn').classList.remove('hidden');
+    }
+
+    function saveAllMarkets() {
+      if (!window.appState) window.appState = { id: 1 };
+      if (!Array.isArray(window.appState.liveMarkets)) window.appState.liveMarkets = [];
+      
+      const inputRows = document.querySelectorAll('.market-input-row-desktop');
+      if (inputRows.length === 0) return;
+      
+      inputRows.forEach(row => {
+        const marketName = row.querySelector('.market-name-input').value.trim();
+        if (marketName) {
+          window.appState.liveMarkets.push({
+            id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
+            marketName: marketName,
+            openTime: row.querySelector('.market-open-input').value.trim() || "",
+            closeTime: row.querySelector('.market-close-input').value.trim() || "",
+            result: row.querySelector('.market-result-input').value.trim() || "-",
+            status: row.querySelector('.market-status-input').value.trim() || "CLOSED"
+          });
+        }
+      });
+      
+      if (window.supabaseClient) {
+        window.supabaseClient.from('SiteData').update({ liveMarkets: window.appState.liveMarkets }).eq('id', window.appState.id || 1)
+          .then(({ error }) => {
+            if (error) {
+              console.error("Error saving new markets:", error);
+              alert("Error saving: " + error.message);
+            } else {
+              updateUI(window.appState);
+              document.getElementById('save-markets-btn').classList.add('hidden');
+            }
+          });
+      }
+    }
+    
+    // Attach event listeners safely after DOM loads
+    document.addEventListener("DOMContentLoaded", () => {
+      const addMarketBtn = document.getElementById('add-market-btn');
+      if (addMarketBtn) addMarketBtn.addEventListener('click', addLiveMarketRow);
+      
+      const saveMarketsBtn = document.getElementById('save-markets-btn');
+      if (saveMarketsBtn) saveMarketsBtn.addEventListener('click', saveAllMarkets);
+    });
+  </script>
+</body>
+
+</html>
