@@ -805,8 +805,12 @@
       if (confirm("Delete this row?")) processUpdate({ type: 'history_delete', id: id });
     }
     function addLiveMarket() {
-      console.log("addLiveMarket button clicked!");
-      processUpdate({ type: 'market_add' });
+      try {
+        console.log("addLiveMarket button clicked!");
+        processUpdate({ type: 'market_add' });
+      } catch (err) {
+        alert("Error adding market: " + err.message);
+      }
     }
     function editLiveMarket(id, field) {
       const val = prompt("Enter new value:");
@@ -902,7 +906,11 @@
           });
 
         // Optimistic UI update
-        updateUI(window.appState);
+        try {
+          updateUI(window.appState);
+        } catch (err) {
+          alert("UI Update Error: " + err.message);
+        }
       }
     }
   </script>
