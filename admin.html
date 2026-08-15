@@ -243,7 +243,7 @@
           </div>
           <div id="live-markets-container" class="border-t border-gray-200 bg-white"></div>
           <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
-            <button id="add-market-btn"
+            <button id="add-market-btn" onclick="addLiveMarket()"
               class="text-sm bg-arkGreen text-white px-4 py-2 rounded shadow block mx-auto">➕ Add Market</button>
           </div>
         </div>
@@ -805,6 +805,7 @@
       if (confirm("Delete this row?")) processUpdate({ type: 'history_delete', id: id });
     }
     function addLiveMarket() {
+      console.log("addLiveMarket button clicked!");
       processUpdate({ type: 'market_add' });
     }
     function editLiveMarket(id, field) {
@@ -904,12 +905,6 @@
         updateUI(window.appState);
       }
     }
-
-    // Attach event listeners safely after DOM loads
-    document.addEventListener("DOMContentLoaded", () => {
-      const addMarketBtn = document.getElementById('add-market-btn');
-      if (addMarketBtn) addMarketBtn.addEventListener('click', addLiveMarket);
-    });
   </script>
 </body>
 
